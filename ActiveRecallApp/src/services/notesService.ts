@@ -54,13 +54,19 @@ class NotesService {
     });
   }
 
-  async transcribeAudio(uri: string): Promise<string> {
+  async transcribeAudio(uri: string, audioInfo?: { fileExtension: string; mimeType: string }): Promise<string> {
     return this.makeAuthenticatedRequest(async (token) => {
       const formData = new FormData();
+      
+      // Use provided audio info or fallback to defaults
+      const fileExtension = audioInfo?.fileExtension || 'wav';
+      const mimeType = audioInfo?.mimeType || 'audio/wav';
+      const fileName = `recording.${fileExtension}`;
+      
       formData.append('file', {
         uri,
-        type: 'audio/wav',
-        name: 'recording.wav',
+        type: mimeType,
+        name: fileName,
       } as any);
       formData.append('model_id', 'scribe_v1');
 

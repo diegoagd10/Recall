@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,15 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
+  ActivityIndicator,
+  Platform,
+  Linking,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Audio } from 'expo-av';
 import { RootStackParamList, Question, PracticeSession } from '../types';
+import NotesService from '../services/notesService';
 
 type PracticeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Practice'>;
 type PracticeScreenRouteProp = RouteProp<RootStackParamList, 'Practice'>;
@@ -19,6 +24,7 @@ export default function PracticeScreen() {
   const navigation = useNavigation<PracticeScreenNavigationProp>();
   const route = useRoute<PracticeScreenRouteProp>();
   const { note } = route.params;
+  const notesService = NotesService.getInstance();
 
   const [session, setSession] = useState<PracticeSession>({
     noteId: note.id,
@@ -27,32 +33,101 @@ export default function PracticeScreen() {
     userAnswers: [],
   });
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
   const [recordingUri, setRecordingUri] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [transcribing, setTranscribing] = useState(false);
+  const [hasAudioPermission, setHasAudioPermission] = useState(false);
+  const [isAudioSupported, setIsAudioSupported] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
+  const recordingRef = useRef<Audio.Recording | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const playbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    setupAudio();
     fetchQuestions();
+    return () => {
+      cleanupAudio();
+    };
   }, []);
 
-  const fetchQuestions = async () => {
+  const setupAudio = async () => {
     try {
-      // TODO: Implement API call to fetch questions for the note
-      const mockQuestions: Question[] = [
-        { id: '1', question: 'What is a transformer?', answer: 'A neural network architecture...' },
-        { id: '2', question: 'How does attention work?', answer: 'Attention mechanisms allow...' },
-      ];
-      setSession(prev => ({ ...prev, questions: mockQuestions }));
+      // Check if audio recording is supported on this platform
+      if (Platform.OS === 'web') {
+        setIsAudioSupported(false);
+        return;
+      }
+
+      const { status } = await Audio.requestPermissionsAsync();
+      setHasAudioPermission(status === 'granted');
+      
+      if (status === 'granted') {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+      }
     } catch (error) {
-      console.error('Error fetching questions:', error);
-      Alert.alert('Error', 'Failed to load questions');
+      console.error('Error setting up audio:', error);
+      setIsAudioSupported(false);
     }
   };
 
-  const handleSubmitAnswer = () => {
+  const cleanupAudio = async () => {
+    try {
+      // Clear any pending timeout
+      if (playbackTimeoutRef.current) {
+        clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
+      
+      if (recordingRef.current) {
+        await recordingRef.current.stopAndUnloadAsync();
+        recordingRef.current = null;
+      }
+      if (soundRef.current) {
+        // Clear status listener before unloading
+        soundRef.current.setOnPlaybackStatusUpdate(null);
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+    }
+  };
+
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      const questions = await notesService.fetchQuestions(note.id);
+      setSession(prev => ({ ...prev, questions }));
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      Alert.alert(
+        'Error',
+        'Failed to load questions. Please check your connection and try again.',
+        [
+          { text: 'Retry', onPress: fetchQuestions },
+          { text: 'Cancel', onPress: () => navigation.goBack() }
+        ]
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitAnswer = async () => {
     if (!currentAnswer.trim()) {
       Alert.alert('Error', 'Please provide an answer before submitting');
       return;
     }
+
+    // Stop any active recording first
+    await stopIfRecording();
+    
+    // Clean up audio resources before proceeding
+    await cleanupCurrentAudio();
 
     const newUserAnswer = {
       questionId: session.questions[session.currentQuestionIndex].id,
@@ -76,6 +151,38 @@ export default function PracticeScreen() {
     }
   };
 
+  const stopIfRecording = async () => {
+    if (isRecording && recordingRef.current) {
+      try {
+        await recordingRef.current.stopAndUnloadAsync();
+      } catch (error) {
+        console.error('Error stopping recording during submit:', error);
+      } finally {
+        setIsRecording(false);
+        recordingRef.current = null;
+      }
+    }
+  };
+
+  const cleanupCurrentAudio = async () => {
+    try {
+      // Clear any active timeout
+      if (playbackTimeoutRef.current) {
+        clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
+      
+      if (soundRef.current) {
+        // Clear status listener before unloading
+        soundRef.current.setOnPlaybackStatusUpdate(null);
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    } catch (error) {
+      console.error('Error cleaning up audio:', error);
+    }
+  };
+
   const finishPracticeSession = (answers: typeof session.userAnswers) => {
     // TODO: Evaluate answers and calculate score
     const score = Math.floor(Math.random() * answers.length) + 1; // Mock score
@@ -93,43 +200,211 @@ export default function PracticeScreen() {
   };
 
   const startRecording = async () => {
+    if (!isAudioSupported) {
+      Alert.alert('Audio Not Supported', 'Audio recording is not available on this platform. Please type your answer instead.');
+      return;
+    }
+
+    if (!hasAudioPermission) {
+      Alert.alert(
+        'Permission Required', 
+        'Microphone permission is required for voice recording. Please enable it in settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() }
+        ]
+      );
+      return;
+    }
+
     try {
-      // TODO: Implement audio recording
+      if (recordingRef.current) {
+        console.warn('Recording already in progress');
+        return;
+      }
+
+      const { recording: newRecording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      
+      recordingRef.current = newRecording;
       setIsRecording(true);
     } catch (error) {
       console.error('Error starting recording:', error);
-      Alert.alert('Error', 'Failed to start recording');
+      Alert.alert('Error', 'Failed to start recording. Please check microphone permissions.');
     }
   };
 
   const stopRecording = async () => {
     try {
-      // TODO: Implement stop recording and transcription
+      if (!recordingRef.current) {
+        console.warn('No recording to stop');
+        return;
+      }
+
       setIsRecording(false);
-      setCurrentAnswer('Transcribed audio answer would appear here');
+      await recordingRef.current.stopAndUnloadAsync();
+      const uri = recordingRef.current.getURI();
+      
+      if (uri) {
+        setRecordingUri(uri);
+        await transcribeRecording(uri);
+      }
+      
+      recordingRef.current = null;
     } catch (error) {
       console.error('Error stopping recording:', error);
       Alert.alert('Error', 'Failed to stop recording');
+      setIsRecording(false);
+      recordingRef.current = null;
+      setRecordingUri('');
     }
   };
 
-  const playRecording = () => {
-    // TODO: Implement audio playback
-    Alert.alert('Info', 'Audio playback will be implemented');
+  const getAudioFileInfo = () => {
+    // HIGH_QUALITY preset typically produces M4A (AAC) on both iOS and Android
+    // This is more deterministic than parsing URIs which can be unreliable
+    return {
+      fileExtension: 'm4a',
+      mimeType: 'audio/mp4', // More broadly recognized than audio/m4a
+    };
   };
 
-  const deleteRecording = () => {
-    setRecordingUri('');
-    setCurrentAnswer('');
+  const transcribeRecording = async (uri: string) => {
+    try {
+      setTranscribing(true);
+      const { fileExtension, mimeType } = getAudioFileInfo();
+      
+      const transcribedText = await notesService.transcribeAudio(uri, {
+        fileExtension,
+        mimeType,
+      });
+      setCurrentAnswer(transcribedText.trim());
+    } catch (error) {
+      console.error('Error transcribing audio:', error);
+      Alert.alert(
+        'Transcription Failed',
+        'Could not transcribe audio. You can type your answer instead.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setTranscribing(false);
+    }
+  };
+
+  const playRecording = async () => {
+    if (!recordingUri) {
+      Alert.alert('Error', 'No recording to play');
+      return;
+    }
+
+    let newSound: Audio.Sound | null = null;
+    
+    try {
+      // Clear any existing timeout
+      if (playbackTimeoutRef.current) {
+        clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
+      
+      if (soundRef.current) {
+        soundRef.current.setOnPlaybackStatusUpdate(null);
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: recordingUri },
+        { shouldPlay: false }
+      );
+      newSound = sound;
+      soundRef.current = newSound;
+      
+      // Set up timeout protection (1 minute max)
+      const timeout = setTimeout(() => {
+        if (soundRef.current) {
+          soundRef.current.setOnPlaybackStatusUpdate(null);
+          soundRef.current.unloadAsync().catch(console.error);
+          soundRef.current = null;
+        }
+        playbackTimeoutRef.current = null;
+      }, 60000);
+      playbackTimeoutRef.current = timeout;
+      
+      // Set up playback status listener to clean up when finished
+      newSound.setOnPlaybackStatusUpdate((status: any) => {
+        if (status.didJustFinish) {
+          if (playbackTimeoutRef.current) {
+            clearTimeout(playbackTimeoutRef.current);
+            playbackTimeoutRef.current = null;
+          }
+          if (soundRef.current) {
+            soundRef.current.setOnPlaybackStatusUpdate(null);
+            soundRef.current.unloadAsync().catch(console.error);
+            soundRef.current = null;
+          }
+        }
+      });
+      
+      await newSound.playAsync();
+    } catch (error) {
+      console.error('Error playing recording:', error);
+      Alert.alert('Error', 'Failed to play recording. The audio file may be corrupted.');
+      
+      // Clean up on error
+      if (playbackTimeoutRef.current) {
+        clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
+      if (newSound) {
+        newSound.setOnPlaybackStatusUpdate(null);
+        newSound.unloadAsync().catch(console.error);
+        soundRef.current = null;
+      }
+    }
+  };
+
+  const deleteRecording = async () => {
+    try {
+      // Clear any active timeout
+      if (playbackTimeoutRef.current) {
+        clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
+      
+      if (soundRef.current) {
+        soundRef.current.setOnPlaybackStatusUpdate(null);
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+      setRecordingUri('');
+      setCurrentAnswer('');
+    } catch (error) {
+      console.error('Error deleting recording:', error);
+    }
   };
 
   const currentQuestion = session.questions[session.currentQuestionIndex];
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Loading questions...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!currentQuestion) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centerContainer}>
-          <Text>Loading questions...</Text>
+          <Text style={styles.errorText}>No questions available</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.retryButtonText}>Go Back</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -155,20 +430,38 @@ export default function PracticeScreen() {
           style={styles.textInput}
           multiline
           numberOfLines={4}
-          placeholder="Type your answer here..."
+          placeholder="Type your answer here or record audio..."
           value={currentAnswer}
           onChangeText={setCurrentAnswer}
+          editable={!transcribing}
         />
 
+        {transcribing && (
+          <View style={styles.transcribingContainer}>
+            <ActivityIndicator size="small" color="#007AFF" />
+            <Text style={styles.transcribingText}>Transcribing audio...</Text>
+          </View>
+        )}
+
         <View style={styles.audioControls}>
-          <TouchableOpacity
-            style={[styles.recordButton, isRecording && styles.recordingButton]}
-            onPress={isRecording ? stopRecording : startRecording}
-          >
-            <Text style={styles.recordButtonText}>
-              {isRecording ? 'Stop Recording' : 'Record Answer'}
+          {!isAudioSupported ? (
+            <Text style={styles.audioUnsupportedText}>
+              Voice recording is not available on this platform
             </Text>
-          </TouchableOpacity>
+          ) : !hasAudioPermission ? (
+            <Text style={styles.audioPermissionText}>
+              Microphone permission required for voice recording
+            </Text>
+          ) : (
+            <TouchableOpacity
+              style={[styles.recordButton, isRecording && styles.recordingButton]}
+              onPress={isRecording ? stopRecording : startRecording}
+            >
+              <Text style={styles.recordButtonText}>
+                {isRecording ? 'Stop Recording' : 'Record Answer'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {recordingUri && (
             <View style={styles.audioActions}>
@@ -184,9 +477,13 @@ export default function PracticeScreen() {
       </View>
 
       <View style={styles.bottomControls}>
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmitAnswer}>
-          <Text style={styles.submitButtonText}>
-            {session.currentQuestionIndex < session.questions.length - 1 ? 'Next Question' : 'Finish Practice'}
+        <TouchableOpacity 
+          style={[styles.submitButton, (!currentAnswer.trim() || transcribing || isRecording) && styles.disabledButton]} 
+          onPress={handleSubmitAnswer}
+          disabled={!currentAnswer.trim() || transcribing || isRecording}
+        >
+          <Text style={[styles.submitButtonText, (!currentAnswer.trim() || transcribing || isRecording) && styles.disabledButtonText]}>
+            {isRecording ? 'Stop Recording First' : session.currentQuestionIndex < session.questions.length - 1 ? 'Next Question' : 'Finish Practice'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -313,5 +610,60 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  transcribingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  transcribingText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: '#007AFF',
+    fontStyle: 'italic',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
+  disabledButtonText: {
+    color: '#888',
+  },
+  audioUnsupportedText: {
+    fontSize: 14,
+    color: '#FF9500',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginVertical: 12,
+  },
+  audioPermissionText: {
+    fontSize: 14,
+    color: '#FF3B30',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginVertical: 12,
   },
 });
