@@ -71,15 +71,6 @@ export default function NotesListScreen() {
   const handleStartPractice = () => {
     setShowPracticeModal(false);
     if (selectedNote) {
-      // Check if the note has questions
-      if (!selectedNote.property_preguntas || selectedNote.property_preguntas === 0) {
-        Alert.alert(
-          'No Questions Available',
-          'This note does not have any questions available for practice.',
-          [{ text: 'OK' }]
-        );
-        return;
-      }
       navigation.navigate('Practice', { note: selectedNote });
     }
   };
