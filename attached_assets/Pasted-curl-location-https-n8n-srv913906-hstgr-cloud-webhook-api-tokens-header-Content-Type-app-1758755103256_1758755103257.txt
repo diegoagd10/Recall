@@ -1,0 +1,479 @@
+curl --location 'https://n8n.srv913906.hstgr.cloud/webhook/api/tokens' \
+--header 'Content-Type: application/json' \
+--data '{
+    "client_name": "xdeQwgwTSGTxR3fN",
+    "client_secret": "pjPEToKJ988iOaHn",
+    "audience": "https://recal.test.com/isam"
+}'
+
+Response:
+{
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWRpZW5jZSI6Imh0dHBzOi8vcmVjYWwudGVzdC5jb20vaXNhbSIsImV4cGlyZXNJbiI6MzYwMCwiaXNzdWVyIjoiUmVjYWxsIiwic3ViamVjdCI6InhkZVF3Z3dUU0dUeFIzZk4iLCJpYXQiOjE3NTg3NTQ0NTF9.0Q00rCop0cjA-0GsmhstHVib2-c53-uE-iSIq39XjYw",
+    "expiresIn": "3600"
+}
+
+
+curl --location 'https://n8n.srv913906.hstgr.cloud/webhook/api/active-recall/notes' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWRpZW5jZSI6Imh0dHBzOi8vcmVjYWwudGVzdC5jb20vaXNhbSIsImV4cGlyZXNJbiI6MzYwMCwiaXNzdWVyIjoiUmVjYWxsIiwic3ViamVjdCI6InhkZVF3Z3dUU0dUeFIzZk4iLCJpYXQiOjE3NTgzODQ0Mjl9.xLUUvM2I8RfXCi1JfiBxd59pSfQvKRLVg9rsinJxL_8'
+
+Response:
+[
+    {
+        "id": "268d0138-aadb-8000-8001-c110a636b830",
+        "name": "Transformers",
+        "url": "https://www.notion.so/Transformers-268d0138aadb80008001c110a636b830",
+        "property_modificado": "2025-09-22T22:48:00.000Z",
+        "property_repasos": 10,
+        "property_periodo": null,
+        "property_preguntas": 2,
+        "property_creado": "2025-09-08T23:08:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": 3,
+        "property_final_review_date": {
+            "start": "2025-09-21T09:28:00.000-04:00",
+            "end": null,
+            "time_zone": null
+        },
+        "property_source": "https://learn.deeplearning.ai/courses/attention-in-transformers-concepts-and-code-in-pytorch/lesson/han2t/introduction",
+        "property_area": "⚔️Profesional",
+        "property_errores": 1,
+        "property_category": [
+            "AI"
+        ],
+        "property_author": "DeepLearningAI (Josh Starmer)",
+        "property_efectividad": 0.5,
+        "property_parent_item": [
+            "268d0138-aadb-800f-b44f-fdf7b2e4130d"
+        ],
+        "property_topic": "Transformers"
+    },
+    {
+        "id": "276d0138-aadb-806e-af6c-c947997f4cd3",
+        "name": "Proceso de ingesta de un Sistema RAG",
+        "url": "https://www.notion.so/Proceso-de-ingesta-de-un-Sistema-RAG-276d0138aadb806eaf6cc947997f4cd3",
+        "property_modificado": "2025-09-22T23:09:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2025-09-22T23:05:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": 2,
+        "property_final_review_date": {
+            "start": "2025-09-22",
+            "end": null,
+            "time_zone": null
+        },
+        "property_source": "https://allstate.udemy.com/course/complete-generative-ai-course-with-langchain-and-huggingface/learn",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "AI"
+        ],
+        "property_author": "Krish Naik",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "268d0138-aadb-800f-b44f-fdf7b2e4130d"
+        ],
+        "property_topic": "Proceso de ingesta de un Sistema RAG"
+    },
+    {
+        "id": "275d0138-aadb-80e0-bb87-da0db79c2a94",
+        "name": "Transformers Dev",
+        "url": "https://www.notion.so/Transformers-Dev-275d0138aadb80e0bb87da0db79c2a94",
+        "property_modificado": "2025-09-21T23:56:00.000Z",
+        "property_repasos": 13,
+        "property_periodo": null,
+        "property_preguntas": 3,
+        "property_creado": "2025-09-21T17:58:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": 2,
+        "property_final_review_date": {
+            "start": "2025-09-21T19:56:00.000-04:00",
+            "end": null,
+            "time_zone": null
+        },
+        "property_source": "https://learn.deeplearning.ai/courses/attention-in-transformers-concepts-and-code-in-pytorch/lesson/han2t/introduction",
+        "property_area": "⚔️Profesional",
+        "property_errores": 0,
+        "property_category": [
+            "AI"
+        ],
+        "property_author": "DeepLearningAI (Josh Starmer)",
+        "property_efectividad": 1,
+        "property_parent_item": [
+            "268d0138-aadb-800f-b44f-fdf7b2e4130d"
+        ],
+        "property_topic": "Transformers Dev"
+    },
+    {
+        "id": "57262369-fcb3-49cc-a6db-f93751724dd4",
+        "name": "Linear Algebra and Regression",
+        "url": "https://www.notion.so/Linear-Algebra-and-Regression-57262369fcb349cca6dbf93751724dd4",
+        "property_modificado": "2024-05-05T01:12:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-04-21T16:35:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "Math"
+        ],
+        "property_author": "Interview Kickstart (Fangxu Xing)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Linear Algebra and Regression"
+    },
+    {
+        "id": "a42fa36d-56e3-4a52-8642-0cd87e4025b9",
+        "name": "Python Pandas and Numpy",
+        "url": "https://www.notion.so/Python-Pandas-and-Numpy-a42fa36d56e34a5286420cd87e4025b9",
+        "property_modificado": "2024-10-16T01:42:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-03-22T13:47:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "Code",
+            "Machine Learning"
+        ],
+        "property_author": "Interview Kickstart (Hannah Chen)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Python Pandas and Numpy"
+    },
+    {
+        "id": "b7fdace1-d1d0-4d54-b199-a5b81408e083",
+        "name": "Object Oriented Programming and final functionalities",
+        "url": "https://www.notion.so/Object-Oriented-Programming-and-final-functionalities-b7fdace1d1d04d54b199a5b81408e083",
+        "property_modificado": "2024-03-22T01:04:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-03-15T02:32:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "Code",
+            "Machine Learning"
+        ],
+        "property_author": "Interview Kickstart (Siavash Alemzadeh)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Object Oriented Programming and final functionalities"
+    },
+    {
+        "id": "e0150a22-792c-40a8-89c9-0e806f1aa0b8",
+        "name": "Advanced Python",
+        "url": "https://www.notion.so/Advanced-Python-e0150a22792c40a889c90e806f1aa0b8",
+        "property_modificado": "2024-03-17T19:36:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-03-07T03:41:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "Code",
+            "Machine Learning"
+        ],
+        "property_author": "Interview Kickstart (Parul Maheshwari)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Advanced Python"
+    },
+    {
+        "id": "d2082e65-b1ef-4fe2-8006-3dc24c04d9a2",
+        "name": "Calculus and Gradient Descent",
+        "url": "https://www.notion.so/Calculus-and-Gradient-Descent-d2082e65b1ef4fe280063dc24c04d9a2",
+        "property_modificado": "2024-04-18T22:53:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-02-27T01:30:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "Math"
+        ],
+        "property_author": "Interview Kickstart (Jason Clague)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Calculus and Gradient Descent"
+    },
+    {
+        "id": "38a94758-d43c-4262-936f-7a39dd021a22",
+        "name": "Database Modelling",
+        "url": "https://www.notion.so/Database-Modelling-38a94758d43c4262936f7a39dd021a22",
+        "property_modificado": "2024-04-10T01:51:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-02-27T01:29:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "Databases"
+        ],
+        "property_author": "Interview Kickstart (David Reed)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Database Modelling"
+    },
+    {
+        "id": "2a7aa510-2e6d-4d9e-99dd-f19a6c418033",
+        "name": "Database & SQL Programming",
+        "url": "https://www.notion.so/Database-SQL-Programming-2a7aa5102e6d4d9e99ddf19a6c418033",
+        "property_modificado": "2024-04-04T01:17:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-02-27T01:25:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "SQL",
+            "Databases"
+        ],
+        "property_author": "Interview Kickstart (Arent Warren de Jong)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Database & SQL Programming"
+    },
+    {
+        "id": "65134851-fbec-470b-b3dc-6df4ceb63e10",
+        "name": "Python Fundamentals",
+        "url": "https://www.notion.so/Python-Fundamentals-65134851fbec470bb3dc6df4ceb63e10",
+        "property_modificado": "2025-05-04T18:23:00.000Z",
+        "property_repasos": null,
+        "property_periodo": null,
+        "property_preguntas": null,
+        "property_creado": "2024-02-27T01:17:00.000Z",
+        "property_extracto": "",
+        "property_status": "Reviewing",
+        "property_type": "💻 Cursos o Formaciones",
+        "property_sub_item": [],
+        "property_days_since_last_review": null,
+        "property_final_review_date": null,
+        "property_source": "https://uplevel.interviewkickstart.com/schedule/",
+        "property_area": "⚔️Profesional",
+        "property_errores": null,
+        "property_category": [
+            "Code",
+            "Machine Learning"
+        ],
+        "property_author": "Interview Kickstart (Javier Alonso)",
+        "property_efectividad": null,
+        "property_parent_item": [
+            "1e841e05-186c-42d2-828a-aa496e05b629"
+        ],
+        "property_topic": "Python Fundamentals"
+    }
+]
+
+curl --location 'https://n8n.srv913906.hstgr.cloud/webhook/6ee000e1-5ed7-4242-bada-7706ddfdd2ff/api/active-recall/notes/268d0138-aadb-8000-8001-c110a636b830' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWRpZW5jZSI6Imh0dHBzOi8vcmVjYWwudGVzdC5jb20vaXNhbSIsImV4cGlyZXNJbiI6MzYwMCwiaXNzdWVyIjoiUmVjYWxsIiwic3ViamVjdCI6InhkZVF3Z3dUU0dUeFIzZk4iLCJpYXQiOjE3NTgzODY1NjF9.DAq3eYepsyMzbdS-CNaqaTy_e-Mx07bdikW492D5rKg'
+
+Response:
+[
+    {
+        "question": "¿Qué es un token?",
+        "answer": "Unidad básica de procesamiento: La pieza más pequeña de texto que el modelo puede entender y procesar\n Evidencias:\n\"Diego eats pizza\" se tokeniza en [\"Diego\", \"eats\", \"pizza\"] - 3 tokens\nUn token puede ser una palabra completa, parte de palabra, o símbolo de puntuación\nLos modelos tienen vocabularios de ~50,000 a 100,000 tokens únicos"
+    },
+    {
+        "question": "¿Qué es un embedding?",
+        "answer": "Representación vectorial numérica: Un arreglo de números (vector) que captura el significado y características semánticas de un token\n Evidencias:\nEjemplo: \"pizza\"  [0.2, -0.1, 0.8, 0.5, ...] donde cada posición representa características como \"comida\", \"dulce\", \"calor\", \"Italia\"\nLos vectores similares representan conceptos relacionados\nDimensiones típicas: 256, 512, 768, o 1024 números por embedding"
+    },
+    {
+        "question": "¿Cómo se crean los tokens?",
+        "answer": "Tokenización por subpalabras: Se divide el texto usando algoritmos como BPE (Byte Pair Encoding)\n Vocabulario fijo: Se crea un diccionario con los tokens más comunes del corpus de entrenamiento\n Asignación de IDs: Cada token recibe un número único (TokenID)\n Procesamiento: Las palabras desconocidas se dividen en sub-tokens conocidos\n Evidencias:\n\"uncommon\" podría tokenizarse como [\"un\", \"common\"] si \"uncommon\" no está en el vocabulario\nTokens especiales: [PAD], [UNK], [CLS], [SEP] tienen funciones específicas"
+    },
+    {
+        "question": "¿Cómo se crean los embeddings?",
+        "answer": "Inicialización aleatoria: Se crean vectores aleatorios para cada token del vocabulario\n Entrenamiento: Los valores se ajustan durante el entrenamiento para capturar significados\n Matriz de embeddings: Se almacena como tabla lookup donde TokenID  Vector\n Refinamiento: Los vectores evolucionan para agrupar tokens semánticamente similares\n Evidencias:\nLa matriz de embeddings tiene dimensiones [vocabulario_size × embedding_dim]\nEjemplo: 50,000 tokens × 768 dimensiones = 38.4M parámetros solo en embeddings"
+    },
+    {
+        "question": "¿Qué es un Context-Aware Embedding?",
+        "answer": "Representación contextual: Un embedding que cambia según las palabras que lo rodean, capturando diferentes significados de la misma palabra\n Evidencias:\n\"banco\" en \"voy al banco\" vs \"me siento en el banco\" genera embeddings diferentes\nCreado por las capas de attention que consideran el contexto completo\nA diferencia de embeddings estáticos, estos son dinámicos y específicos por oración"
+    },
+    {
+        "question": "¿Qué es un Transformer?",
+        "answer": "️ Arquitectura fundamental de los modelos de lenguaje modernos (GPT, Claude, BERT) que procesa texto de manera inteligente\n Evidencias:\nBase de ChatGPT, Claude, BERT y otros LLMs exitosos\nRevolucionó el procesamiento de lenguaje natural desde 2017"
+    },
+    {
+        "question": "¿Cuáles son los componentes principales de un Transformer?",
+        "answer": "Tokenizer: Convierte texto en secuencias numéricas procesables\n Embeddings: Representación vectorial densa de cada token\n Positional Encoding: Información sobre la posición de cada token\n Stack de Transformer Blocks: Procesamiento principal con attention y feed forward\n LM Head: Capa final que predice el siguiente token"
+    },
+    {
+        "question": "¿Cómo funciona el proceso completo de un Transformer?",
+        "answer": "Tokenización: El texto se convierte en tokens (\"Diego eats pizza\"  [\"Diego\", \"eats\", \"pizza\"])\n Word Embeddings: Cada token se representa como vector numérico que captura características semánticas\n Positional Encoding: Se agrega información del orden para distinguir secuencias\n Attention: Se determinan las relaciones entre palabras del contexto\n LM Head: Se generan probabilidades para predecir el siguiente token\n Decoding Strategy: Se selecciona el token final según la estrategia elegida\n Evidencias:\nEjemplo de embedding: \"pizza\"  [0.2, -0.1, 0.8, 0.5] donde cada dimensión representa características como \"comida\", \"dulce\", \"calor\", \"Italia\"\nProblema sin positional encoding: \"Diego eats pizza\" vs \"Pizza eats Diego\" serían indistinguibles"
+    },
+    {
+        "question": "¿Qué es el Context Length y por qué es importante?",
+        "answer": "Límite de memoria: Cuántas palabras puede \"recordar\" el modelo en total durante una conversación\n Evidencias:\nChatGPT: ~4,000 palabras\nClaude: ~100,000 palabras\nModelos nuevos: +1,000,000 palabras\nImpacto: En conversaciones largas el modelo \"olvida\" información del inicio"
+    },
+    {
+        "question": "¿Cómo funciona el procesamiento autoregresivo?",
+        "answer": "Generación secuencial: Se produce una palabra a la vez\n Retroalimentación: Cada token generado se agrega al input\n Consideración contextual: Cada nueva palabra considera todas las anteriores\n Iteración: El proceso se repite hasta completar la respuesta\n Evidencias:\nEjemplo de traducción:\nStep 1: \"I love llamas\"  \"ik\"\nStep 2: \"I love llamas ik\"  \"hou\"\nStep 3: \"I love llamas ik hou\"  \"van\"\nResultado: \"ik hou van lama's\""
+    },
+    {
+        "question": "¿Qué función cumple el LM Head?",
+        "answer": "Predicción de tokens: Asigna puntajes de probabilidad a todos los tokens del vocabulario para determinar cuál es más probable que siga\n Evidencias:\nOutput típico: TokenId 1002 (\"Dear\") con 40% de probabilidad vs TokenId 5000 (\"Zyzzyua\") con 1%"
+    },
+    {
+        "question": "¿Cuáles son las principales estrategias de decodificación?",
+        "answer": "Greedy Decoding: Siempre elige el token con mayor probabilidad (temperature = 0)\n Sampling con Temperatura: Agrega aleatoriedad controlada seleccionando entre top_p tokens más probables (temperature > 0)\n Evidencias:\nGreedy: Determinístico y consistente, pero puede ser repetitivo\nSampling: Más creativo y variado, controlado por parámetros top_p"
+    },
+    {
+        "question": "¿Cuáles son los tipos principales de Attention?",
+        "answer": "Self-Attention: Bidireccional, ve pasado y futuro, usado en encoders como BERT\n️ Masked Self-Attention: Unidireccional, solo ve el pasado, usado en decoders como GPT y Claude\n Evidencias:\nSelf-attention permite análisis completo del contexto\nMasked attention previene que el modelo \"vea el futuro\" durante entrenamiento"
+    },
+    {
+        "question": "¿Cuáles son las fórmulas principales de Attention?",
+        "answer": "Self-Attention:\nAttention(Q,K,V) = SoftMax(QK^T/√d_k) × V\nMasked Self-Attention:\nAttention(Q,K,V,M) = SoftMax((QK^T/√d_k) + M) × V\nCálculo de componentes:\nQ = Embedding × W_Q\nK = Embedding × W_K  \nV = Embedding × W_V\n Evidencias:\n√d_k es factor de normalización donde d_k = dimensión del embedding\nLa máscara M bloquea posiciones futuras con valores -∞\nLos pesos W se aprenden durante entrenamiento y son fijos en inferencia"
+    },
+    {
+        "question": "¿Qué representan los componentes Q, K, V en las fórmulas de Attention?",
+        "answer": "Q (Query): \"¿Qué estoy buscando?\" - la pregunta que hace cada token\n️ K (Key): Clave/identificador de cada palabra en la secuencia\n V (Value): Valor o contenido asociado con cada palabra\n M (Mask): Bloquea información futura en masked attention"
+    },
+    {
+        "question": "¿Cuáles son las diferencias principales entre arquitecturas Encoder y Decoder?",
+        "answer": "Encoders (BERT): Usan Self-Attention para comprensión bidireccional, ideales para clasificación y análisis\n️ Decoders (GPT, Claude): Usan Masked Self-Attention para generación secuencial, ideales para chat y escritura"
+    },
+    {
+        "question": "¿Por qué se usa Multi-Head Attention?",
+        "answer": "Múltiples perspectivas: Cada \"cabeza\" se especializa en diferentes tipos de relaciones en oraciones complejas\n Procesamiento paralelo: Múltiples capas de attention trabajan simultáneamente\n Integración: Los resultados se concatenan y pasan por proyección lineal"
+    },
+    {
+        "question": "¿Qué función cumple la Feed Forward Neural Network?",
+        "answer": "Procesamiento complejo: Transforma las representaciones de attention aplicando transformaciones no-lineales\n Preparación: Prepara la información procesada para el LM Head mediante múltiples capas con activaciones"
+    },
+    {
+        "question": "¿Cuáles son los tipos de embeddings que genera un Transformer?",
+        "answer": "Word Embeddings: Agrupa palabras similares ([\"gato\", \"perro\", \"mascota\"])\n Context-Aware Embeddings: Diferencia significados según contexto (diferentes usos de \"banco\")\n Evidencias:\nLos embeddings conscientes del contexto permiten que \"banco\" (institución financiera) se distinga de \"banco\" (asiento) según la oración"
+    },
+    {
+        "question": "¿Qué es una arquitectura Mixture of Experts (MoE)?",
+        "answer": "Es una técnica de escalado de modelos que divide el procesamiento entre múltiples redes especializadas (expertos), activando solo una fracción durante cada inferencia.\n Evidencias:\nPermite modelos con trillones de parámetros manteniendo costos computacionales controlados\nSwitch Transformer de Google alcanzó 1.6T parámetros con MoE\nReduce el costo por token comparado con modelos densos equivalentes"
+    },
+    {
+        "question": "¿Cuáles son los componentes principales de un sistema MoE?",
+        "answer": "Router (Gating Network): Red que decide qué expertos activar para cada token\n Experts: Redes feedforward especializadas que procesan subconjuntos de datos\n️ Load Balancer: Mecanismo que distribuye el trabajo equitativamente entre expertos\n Token Dispatcher: Sistema que enruta tokens hacia los expertos seleccionados"
+    },
+    {
+        "question": "¿Cómo funciona el router en una arquitectura MoE?",
+        "answer": "Recibe la representación de cada token de entrada\n Calcula puntuaciones de compatibilidad para todos los expertos disponibles\n Aplica función softmax y selecciona los top-k expertos (típicamente k=1 o k=2)\n Genera pesos de combinación para los expertos seleccionados\n Envía cada token solo a sus expertos asignados\n Evidencias:\nRouter típico: una capa lineal simple seguida de softmax\nTop-1 routing: solo el mejor experto procesa cada token\nTop-2 routing: combina outputs de los 2 mejores expertos ponderadamente"
+    }
+]
+
+curl --location 'https://n8n.srv913906.hstgr.cloud/webhook/6ee000e1-5ed7-4242-bada-7706ddfdd2ff/api/active-recall/notes/268d0138-aadb-8000-8001-c110a636b830' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWRpZW5jZSI6Imh0dHBzOi8vcmVjYWwudGVzdC5jb20vaXNhbSIsImV4cGlyZXNJbiI6MzYwMCwiaXNzdWVyIjoiUmVjYWxsIiwic3ViamVjdCI6InhkZVF3Z3dUU0dUeFIzZk4iLCJpYXQiOjE3NTgzODY1NjF9.DAq3eYepsyMzbdS-CNaqaTy_e-Mx07bdikW492D5rKg' \
+--data '[
+    {
+        "question": "¿Qué es un token?",
+        "answer": "Unidad básica de procesamiento: La pieza más pequeña de texto que el modelo puede entender y procesar\n Evidencias:\n\"Diego eats pizza\" se tokeniza en [\"Diego\", \"eats\", \"pizza\"] - 3 tokens\nUn token puede ser una palabra completa, parte de palabra, o símbolo de puntuación\nLos modelos tienen vocabularios de ~50,000 a 100,000 tokens únicos",
+        "studenAnswer": "El perro es warnoso"
+    },
+    {
+        "question": "¿Qué es un embedding?",
+        "answer": "Representación vectorial numérica: Un arreglo de números (vector) que captura el significado y características semánticas de un token\n Evidencias:\nEjemplo: \"pizza\"  [0.2, -0.1, 0.8, 0.5, ...] donde cada posición representa características como \"comida\", \"dulce\", \"calor\", \"Italia\"\nLos vectores similares representan conceptos relacionados\nDimensiones típicas: 256, 512, 768, o 1024 números por embedding",
+        "studenAnswer": "La representacion numerica vectorial de un token y su relacion con caracteristicas sementicas. Permite agrupar tokens entre si."
+    }
+]'
+
+Response:
+
+{
+    "questionsCount": 2,
+    "correctOnesCount": 1,
+    "incorrectOnesCount": 1,
+    "finalScore": 50,
+    "incorrectQuestions": [
+        {
+            "json": {
+                "question": "¿Qué es un token?",
+                "answer": "Unidad básica de procesamiento: La pieza más pequeña de texto que el modelo puede entender y procesar\n Evidencias:\n\"Diego eats pizza\" se tokeniza en [\"Diego\", \"eats\", \"pizza\"] - 3 tokens\nUn token puede ser una palabra completa, parte de palabra, o símbolo de puntuación\nLos modelos tienen vocabularios de ~50,000 a 100,000 tokens únicos",
+                "studenAnswer": "El perro es warnoso",
+                "score": "30"
+            },
+            "pairedItem": {
+                "item": 0
+            }
+        }
+    ]
+}
