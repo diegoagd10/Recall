@@ -53,8 +53,8 @@ class AuthService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          client_name: 'xdeQwgwTSGTxR3fN',
-          client_secret: 'pjPEToKJ988iOaHn',
+          client_name: process.env.BACKEND_API_CLIENT_ID,
+          client_secret: process.env.BACKEND_API_CLIENT_SECRET,
           audience: 'https://recal.test.com/isam',
         }),
       });
