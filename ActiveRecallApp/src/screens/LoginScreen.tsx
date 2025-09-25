@@ -1,118 +1,123 @@
-
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RootStackParamList } from '../types';
-import AuthService from '../services/authService';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { RootStackParamList } from "../types";
+import AuthService from "../services/authService";
 
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type LoginScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Login"
+>;
 
 export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const validateInputs = () => {
     if (!username.trim()) {
-      Alert.alert('Validation Error', 'Please enter your username');
+      Alert.alert("Validation Error", "Please enter your username");
       return false;
     }
     if (!password.trim()) {
-      Alert.alert('Validation Error', 'Please enter your password');
+      Alert.alert("Validation Error", "Please enter your password");
       return false;
     }
     if (password.length < 6) {
-      Alert.alert('Validation Error', 'Password must be at least 6 characters long');
+      Alert.alert(
+        "Validation Error",
+        "Password must be at least 6 characters long"
+      );
       return false;
     }
     return true;
   };
 
   const handleLogin = async () => {
-    console.log('🔐 LoginScreen: User attempting to log in');
-    
+    console.log("🔐 LoginScreen: User attempting to log in");
+
     if (!validateInputs()) {
       return;
     }
 
     try {
       setLoading(true);
-      
+
       // Authenticate with backend
-      console.log('🌐 LoginScreen: Sending authentication request to backend');
+      console.log("🌐 LoginScreen: Sending authentication request to backend");
       const authService = AuthService.getInstance();
       const success = await authService.authenticate(username.trim(), password);
-      
+
       if (success) {
-        console.log('✅ LoginScreen: Authentication successful');
-        
+        console.log("✅ LoginScreen: Authentication successful");
+
         try {
           // Store credentials securely (handle web platform)
-          console.log('💾 LoginScreen: Storing credentials securely');
-          if (Platform.OS === 'web') {
+          console.log("💾 LoginScreen: Storing credentials securely");
+          if (Platform.OS === "web") {
             // Use AsyncStorage for web platform
-            await AsyncStorage.setItem('username', username.trim());
-            console.log('✅ LoginScreen: Username stored (web)');
-            await AsyncStorage.setItem('password', password);
-            console.log('✅ LoginScreen: Password stored (web)');
-            await AsyncStorage.setItem('isLoggedIn', 'true');
-            console.log('✅ LoginScreen: Login status stored (web)');
+            await AsyncStorage.setItem("username", username.trim());
+            console.log("✅ LoginScreen: Username stored (web)");
+            await AsyncStorage.setItem("password", password);
+            console.log("✅ LoginScreen: Password stored (web)");
+            await AsyncStorage.setItem("isLoggedIn", "true");
+            console.log("✅ LoginScreen: Login status stored (web)");
           } else {
             // Use SecureStore for native platforms
-            await SecureStore.setItemAsync('username', username.trim());
-            console.log('✅ LoginScreen: Username stored (native)');
-            await SecureStore.setItemAsync('password', password);
-            console.log('✅ LoginScreen: Password stored (native)');
-            await SecureStore.setItemAsync('isLoggedIn', 'true');
-            console.log('✅ LoginScreen: Login status stored (native)');
+            await SecureStore.setItemAsync("username", username.trim());
+            console.log("✅ LoginScreen: Username stored (native)");
+            await SecureStore.setItemAsync("password", password);
+            console.log("✅ LoginScreen: Password stored (native)");
+            await SecureStore.setItemAsync("isLoggedIn", "true");
+            console.log("✅ LoginScreen: Login status stored (native)");
           }
         } catch (storeError) {
-          console.error('❌ LoginScreen: SecureStore error:', storeError);
+          console.error("❌ LoginScreen: SecureStore error:", storeError);
           throw storeError;
         }
-        
+
         try {
-          console.log('🧭 LoginScreen: Navigating to notes screen');
+          console.log("🧭 LoginScreen: Navigating to notes screen");
           navigation.reset({
             index: 0,
-            routes: [{ name: 'NotesList' }],
+            routes: [{ name: "NotesList" }],
           });
-          console.log('✅ LoginScreen: Navigation completed');
+          console.log("✅ LoginScreen: Navigation completed");
         } catch (navError) {
-          console.error('❌ LoginScreen: Navigation error:', navError);
+          console.error("❌ LoginScreen: Navigation error:", navError);
           throw navError;
         }
       } else {
-        console.log('❌ LoginScreen: Authentication failed');
+        console.log("❌ LoginScreen: Authentication failed");
         Alert.alert(
-          'Authentication Failed',
-          'Invalid credentials. Please check your username and password and try again.',
-          [{ text: 'OK' }]
+          "Authentication Failed",
+          "Invalid credentials. Please check your username and password and try again.",
+          [{ text: "OK" }]
         );
       }
     } catch (error) {
-      console.error('❌ LoginScreen: Login error:', error);
+      console.error("❌ LoginScreen: Login error:", error);
       Alert.alert(
-        'Login Error',
-        'Unable to connect to the server. Please check your internet connection and try again.',
-        [{ text: 'OK' }]
+        "Login Error",
+        "Unable to connect to the server. Please check your internet connection and try again.",
+        [{ text: "OK" }]
       );
     } finally {
       setLoading(false);
@@ -121,11 +126,11 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingView}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
@@ -168,9 +173,13 @@ export default function LoginScreen() {
                 <TouchableOpacity
                   style={styles.eyeButton}
                   onPress={() => setShowPassword(!showPassword)}
-                  accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                  accessibilityLabel={
+                    showPassword ? "Hide password" : "Show password"
+                  }
                 >
-                  <Text style={styles.eyeButtonText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                  <Text style={styles.eyeButtonText}>
+                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -198,36 +207,36 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   keyboardAvoidingView: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
   },
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   appTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#007AFF',
+    fontWeight: "bold",
+    color: "#007AFF",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
   },
   formContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 24,
-    boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.1)',
+    boxShadow: "0px 2px 3.84px rgba(0, 0, 0, 0.1)",
     elevation: 5,
   },
   inputContainer: {
@@ -235,25 +244,25 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 8,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   passwordInput: {
     flex: 1,
@@ -267,18 +276,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   loginButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     borderRadius: 8,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 12,
   },
   loginButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
   },
 });

@@ -1,23 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   Modal,
   Alert,
   RefreshControl,
-} from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList, Note } from '../types';
-import NotesService from '../services/notesService';
-import AuthService from '../services/authService';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList, Note } from "../types";
+import NotesService from "../services/notesService";
+import AuthService from "../services/authService";
 
-type NotesListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NotesList'>;
+type NotesListScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "NotesList"
+>;
 
 export default function NotesListScreen() {
   const navigation = useNavigation<NotesListScreenNavigationProp>();
@@ -31,24 +34,27 @@ export default function NotesListScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('📱 NotesListScreen: Screen focused, fetching notes...');
+      console.log("📱 NotesListScreen: Screen focused, fetching notes...");
       fetchNotes();
     }, [])
   );
 
   const fetchNotes = async () => {
     try {
-      console.log('🔄 NotesListScreen: Starting to fetch notes from API...');
+      console.log("🔄 NotesListScreen: Starting to fetch notes from API...");
       setLoading(true);
       const fetchedNotes = await notesService.fetchNotes();
-      console.log(`✅ NotesListScreen: Successfully fetched ${fetchedNotes.length} notes`, fetchedNotes);
+      console.log(
+        `✅ NotesListScreen: Successfully fetched ${fetchedNotes.length} notes`,
+        fetchedNotes
+      );
       setNotes(fetchedNotes);
     } catch (error) {
-      console.error('❌ NotesListScreen: Error fetching notes:', error);
+      console.error("❌ NotesListScreen: Error fetching notes:", error);
       Alert.alert(
-        'Error',
-        'Failed to load notes. Please check your internet connection and try again.',
-        [{ text: 'OK' }]
+        "Error",
+        "Failed to load notes. Please check your internet connection and try again.",
+        [{ text: "OK" }]
       );
     } finally {
       setLoading(false);
@@ -56,77 +62,96 @@ export default function NotesListScreen() {
   };
 
   const onRefresh = async () => {
-    console.log('🔄 NotesListScreen: User triggered refresh');
+    console.log("🔄 NotesListScreen: User triggered refresh");
     setRefreshing(true);
     try {
       const fetchedNotes = await notesService.fetchNotes();
-      console.log(`✅ NotesListScreen: Refresh successful, ${fetchedNotes.length} notes loaded`);
+      console.log(
+        `✅ NotesListScreen: Refresh successful, ${fetchedNotes.length} notes loaded`
+      );
       setNotes(fetchedNotes);
     } catch (error) {
-      console.error('❌ NotesListScreen: Error refreshing notes:', error);
-      Alert.alert('Error', 'Failed to refresh notes');
+      console.error("❌ NotesListScreen: Error refreshing notes:", error);
+      Alert.alert("Error", "Failed to refresh notes");
     } finally {
       setRefreshing(false);
     }
   };
 
   const handleNotePress = (note: Note) => {
-    console.log(`👆 NotesListScreen: User tapped on note "${note.name}" (ID: ${note.id})`);
+    console.log(
+      `👆 NotesListScreen: User tapped on note "${note.name}" (ID: ${note.id})`
+    );
     setSelectedNote(note);
     setShowPracticeModal(true);
   };
 
   const handleStartPractice = () => {
-    console.log(`🚀 NotesListScreen: User confirmed to start practice for note "${selectedNote?.name}" (ID: ${selectedNote?.id})`);
+    console.log(
+      `🚀 NotesListScreen: User confirmed to start practice for note "${selectedNote?.name}" (ID: ${selectedNote?.id})`
+    );
     setShowPracticeModal(false);
     if (selectedNote) {
-      console.log(`🧭 NotesListScreen: Navigating to Practice screen with note:`, selectedNote);
-      navigation.navigate('Practice', { note: selectedNote });
+      console.log(
+        `🧭 NotesListScreen: Navigating to Practice screen with note:`,
+        selectedNote
+      );
+      navigation.navigate("Practice", { note: selectedNote });
     }
   };
 
   const handleCancelPractice = () => {
-    console.log(`❌ NotesListScreen: User cancelled practice for note "${selectedNote?.name}"`);
+    console.log(
+      `❌ NotesListScreen: User cancelled practice for note "${selectedNote?.name}"`
+    );
     setShowPracticeModal(false);
     setSelectedNote(null);
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
-          style: 'destructive',
-          onPress: async () => {
-            console.log('🚪 NotesListScreen: User confirmed logout');
-            await authService.logout();
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          }
-        }
-      ]
-    );
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          console.log("🚪 NotesListScreen: User confirmed logout");
+          await authService.logout();
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Login" }],
+          });
+        },
+      },
+    ]);
   };
 
   const renderNoteItem = ({ item }: { item: Note }) => (
-    <TouchableOpacity style={styles.noteItem} onPress={() => handleNotePress(item)}>
+    <TouchableOpacity
+      style={styles.noteItem}
+      onPress={() => handleNotePress(item)}
+    >
       <View style={styles.noteHeader}>
         <Text style={styles.noteTitle}>{item.name}</Text>
         <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{item.property_category.join(', ')}</Text>
+          <Text style={styles.categoryText}>
+            {item.property_category.join(", ")}
+          </Text>
         </View>
       </View>
       <Text style={styles.noteAuthor}>by {item.property_author}</Text>
       <View style={styles.noteStats}>
         <View style={styles.statItem}>
           <Text style={styles.statLabel}>Efficiency</Text>
-          <Text style={[styles.statValue, getEfficiencyColor(item.property_efectividad)]}>
-            {item.property_efectividad !== null ? (item.property_efectividad * 100).toFixed(0) + '%' : 'N/A'}
+          <Text
+            style={[
+              styles.statValue,
+              getEfficiencyColor(item.property_efectividad),
+            ]}
+          >
+            {item.property_efectividad !== null
+              ? (item.property_efectividad * 100).toFixed(0) + "%"
+              : "N/A"}
           </Text>
         </View>
         <View style={styles.statItem}>
@@ -140,9 +165,9 @@ export default function NotesListScreen() {
         <View style={styles.statItem}>
           <Text style={styles.statLabel}>Last Review</Text>
           <Text style={styles.statValue}>
-            {item.property_days_since_last_review !== null 
-              ? `${item.property_days_since_last_review} days ago` 
-              : 'Never'}
+            {item.property_days_since_last_review !== null
+              ? `${item.property_days_since_last_review} days ago`
+              : "Never"}
           </Text>
         </View>
       </View>
@@ -150,10 +175,10 @@ export default function NotesListScreen() {
   );
 
   const getEfficiencyColor = (efficiency: number | null) => {
-    if (efficiency === null) return { color: '#666' };
-    if (efficiency >= 0.8) return { color: '#34C759' };
-    if (efficiency >= 0.6) return { color: '#FF9500' };
-    return { color: '#FF3B30' };
+    if (efficiency === null) return { color: "#666" };
+    if (efficiency >= 0.8) return { color: "#34C759" };
+    if (efficiency >= 0.6) return { color: "#FF9500" };
+    return { color: "#FF3B30" };
   };
 
   if (loading) {
@@ -190,7 +215,7 @@ export default function NotesListScreen() {
           ) : null
         }
       />
-      
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -204,10 +229,16 @@ export default function NotesListScreen() {
               Would you like to practice "{selectedNote?.name}"?
             </Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.cancelButton} onPress={handleCancelPractice}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={handleCancelPractice}
+              >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.startButton} onPress={handleStartPractice}>
+              <TouchableOpacity
+                style={styles.startButton}
+                onPress={handleStartPractice}
+              >
                 <Text style={styles.startButtonText}>Start Practice</Text>
               </TouchableOpacity>
             </View>
@@ -221,176 +252,176 @@ export default function NotesListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+    flexDirection: "row",
     paddingVertical: 10,
+    paddingHorizontal: 20,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   logoutButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: "#FF3B30",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
   },
   logoutButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   listContainer: {
     padding: 16,
   },
   noteItem: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
-    boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.1)',
+    boxShadow: "0px 2px 3.84px rgba(0, 0, 0, 0.1)",
     elevation: 5,
   },
   noteTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 8,
   },
   noteStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
   },
   statText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginRight: 10,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 20,
     padding: 24,
     margin: 20,
-    alignItems: 'center',
-    boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
+    alignItems: "center",
+    boxShadow: "0px 2px 3.84px rgba(0, 0, 0, 0.25)",
     elevation: 5,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    color: '#333',
+    color: "#333",
   },
   modalText: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 24,
-    color: '#666',
+    color: "#666",
   },
   modalButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   cancelButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
   },
   cancelButtonText: {
     fontSize: 16,
-    color: '#666',
-    fontWeight: '600',
+    color: "#666",
+    fontWeight: "600",
   },
   startButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
   },
   startButtonText: {
     fontSize: 16,
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   noteHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 4,
   },
   categoryBadge: {
-    backgroundColor: '#E8F4FF',
+    backgroundColor: "#E8F4FF",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
-    maxWidth: '40%',
+    maxWidth: "40%",
   },
   categoryText: {
     fontSize: 12,
-    color: '#007AFF',
-    fontWeight: '500',
-    textAlign: 'center',
+    color: "#007AFF",
+    fontWeight: "500",
+    textAlign: "center",
   },
   noteAuthor: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
     marginBottom: 12,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
   statItem: {
-    alignItems: 'center',
-    minWidth: '22%',
+    alignItems: "center",
+    minWidth: "22%",
     marginBottom: 8,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginBottom: 2,
-    textAlign: 'center',
+    textAlign: "center",
   },
   statValue: {
     fontSize: 14,
-    color: '#333',
-    fontWeight: '600',
-    textAlign: 'center',
+    color: "#333",
+    fontWeight: "600",
+    textAlign: "center",
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingTop: 50,
   },
   emptyText: {
     fontSize: 18,
-    color: '#666',
+    color: "#666",
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: "#999",
   },
 });
