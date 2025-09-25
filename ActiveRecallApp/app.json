@@ -28,10 +28,16 @@
       },
       "navigationBar": {
         "backgroundColor": "#007AFF"
-      }
+      },
+      "package": "com.diegoagd10.ActiveRecall"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9969f6ea-4d5d-46e8-82ae-3c42caae3284"
+      }
     }
   }
 }
