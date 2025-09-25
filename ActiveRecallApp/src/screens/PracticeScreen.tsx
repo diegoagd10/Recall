@@ -585,7 +585,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   bottomControls: {
-    padding: 16,
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 32,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
