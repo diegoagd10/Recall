@@ -16,6 +16,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList } from '../types';
 import AuthService from '../services/authService';
 
@@ -62,17 +63,42 @@ export default function LoginScreen() {
       if (success) {
         console.log('✅ LoginScreen: Authentication successful');
         
-        // Store credentials securely
-        console.log('💾 LoginScreen: Storing credentials securely');
-        await SecureStore.setItemAsync('username', username.trim());
-        await SecureStore.setItemAsync('password', password);
-        await SecureStore.setItemAsync('isLoggedIn', 'true');
+        try {
+          // Store credentials securely (handle web platform)
+          console.log('💾 LoginScreen: Storing credentials securely');
+          if (Platform.OS === 'web') {
+            // Use AsyncStorage for web platform
+            await AsyncStorage.setItem('username', username.trim());
+            console.log('✅ LoginScreen: Username stored (web)');
+            await AsyncStorage.setItem('password', password);
+            console.log('✅ LoginScreen: Password stored (web)');
+            await AsyncStorage.setItem('isLoggedIn', 'true');
+            console.log('✅ LoginScreen: Login status stored (web)');
+          } else {
+            // Use SecureStore for native platforms
+            await SecureStore.setItemAsync('username', username.trim());
+            console.log('✅ LoginScreen: Username stored (native)');
+            await SecureStore.setItemAsync('password', password);
+            console.log('✅ LoginScreen: Password stored (native)');
+            await SecureStore.setItemAsync('isLoggedIn', 'true');
+            console.log('✅ LoginScreen: Login status stored (native)');
+          }
+        } catch (storeError) {
+          console.error('❌ LoginScreen: SecureStore error:', storeError);
+          throw storeError;
+        }
         
-        console.log('🧭 LoginScreen: Navigating to notes screen');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'NotesList' }],
-        });
+        try {
+          console.log('🧭 LoginScreen: Navigating to notes screen');
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'NotesList' }],
+          });
+          console.log('✅ LoginScreen: Navigation completed');
+        } catch (navError) {
+          console.error('❌ LoginScreen: Navigation error:', navError);
+          throw navError;
+        }
       } else {
         console.log('❌ LoginScreen: Authentication failed');
         Alert.alert(

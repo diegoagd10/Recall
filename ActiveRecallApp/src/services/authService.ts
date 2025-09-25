@@ -1,6 +1,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { AuthResponse } from '../types';
 
 const API_BASE_URL = 'https://n8n.srv913906.hstgr.cloud/webhook/api';
@@ -17,6 +18,45 @@ class AuthService {
       AuthService.instance = new AuthService();
     }
     return AuthService.instance;
+  }
+
+  // Platform-specific storage helpers
+  private async getSecureItem(key: string): Promise<string | null> {
+    try {
+      if (Platform.OS === 'web') {
+        return await AsyncStorage.getItem(key);
+      } else {
+        return await SecureStore.getItemAsync(key);
+      }
+    } catch (error) {
+      console.error(`❌ AuthService: Error getting secure item ${key}:`, error);
+      return null;
+    }
+  }
+
+  private async setSecureItem(key: string, value: string): Promise<void> {
+    try {
+      if (Platform.OS === 'web') {
+        await AsyncStorage.setItem(key, value);
+      } else {
+        await SecureStore.setItemAsync(key, value);
+      }
+    } catch (error) {
+      console.error(`❌ AuthService: Error setting secure item ${key}:`, error);
+      throw error;
+    }
+  }
+
+  private async deleteSecureItem(key: string): Promise<void> {
+    try {
+      if (Platform.OS === 'web') {
+        await AsyncStorage.removeItem(key);
+      } else {
+        await SecureStore.deleteItemAsync(key);
+      }
+    } catch (error) {
+      console.error(`❌ AuthService: Error deleting secure item ${key}:`, error);
+    }
   }
 
   async authenticate(username: string, password: string): Promise<boolean> {
@@ -86,8 +126,8 @@ class AuthService {
 
   private async refreshTokenWithStoredCredentials(): Promise<string | null> {
     try {
-      const username = await SecureStore.getItemAsync('username');
-      const password = await SecureStore.getItemAsync('password');
+      const username = await this.getSecureItem('username');
+      const password = await this.getSecureItem('password');
 
       if (!username || !password) {
         console.log('❌ AuthService: No stored credentials found');
@@ -112,7 +152,7 @@ class AuthService {
 
   async isLoggedIn(): Promise<boolean> {
     try {
-      const isLoggedIn = await SecureStore.getItemAsync('isLoggedIn');
+      const isLoggedIn = await this.getSecureItem('isLoggedIn');
       const token = await this.getValidToken();
       return isLoggedIn === 'true' && token !== null;
     } catch (error) {
@@ -133,9 +173,9 @@ class AuthService {
     await AsyncStorage.removeItem('tokenExpiry');
 
     // Clear SecureStore
-    await SecureStore.deleteItemAsync('username');
-    await SecureStore.deleteItemAsync('password');
-    await SecureStore.deleteItemAsync('isLoggedIn');
+    await this.deleteSecureItem('username');
+    await this.deleteSecureItem('password');
+    await this.deleteSecureItem('isLoggedIn');
 
     console.log('✅ AuthService: Logout completed, all credentials cleared');
   }
