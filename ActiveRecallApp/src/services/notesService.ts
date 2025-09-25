@@ -67,12 +67,22 @@ class NotesService {
     });
   }
 
-  async evaluateAnswers(noteId: string, userAnswers: Array<{ questionId: string; userAnswer: string }>): Promise<any> {
+  async evaluateAnswers(noteId: string, questions: Question[], userAnswers: Array<{ questionId: string; userAnswer: string }>): Promise<any> {
     console.log(`🌐 NotesService: Starting evaluateAnswers API call for noteId: ${noteId}`);
     return this.makeAuthenticatedRequest(async (token) => {
+      // Transform to the correct format: array of {question, answer, studenAnswer} objects
+      const requestBody = userAnswers.map(userAnswer => {
+        const question = questions.find(q => q.id === userAnswer.questionId);
+        return {
+          question: question?.question || '',
+          answer: question?.answer || '',
+          studenAnswer: userAnswer.userAnswer
+        };
+      });
+
       const url = `https://n8n.srv913906.hstgr.cloud/webhook/6ee000e1-5ed7-4242-bada-7706ddfdd2ff/api/active-recall/notes/${noteId}`;
-      console.log(`🔗 NotesService: Making POST request to ${url} with ${userAnswers.length} answers`);
-      console.log(`📝 NotesService: User answers being sent:`, userAnswers);
+      console.log(`🔗 NotesService: Making POST request to ${url} with ${requestBody.length} answers`);
+      console.log(`📝 NotesService: Request body being sent:`, requestBody);
       
       const response = await fetch(url, {
         method: 'POST',
@@ -80,7 +90,7 @@ class NotesService {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ answers: userAnswers }),
+        body: JSON.stringify(requestBody),
       });
 
       console.log(`📊 NotesService: evaluateAnswers response status: ${response.status}`);

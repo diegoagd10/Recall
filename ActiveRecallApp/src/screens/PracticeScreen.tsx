@@ -248,17 +248,20 @@ export default function PracticeScreen() {
       console.log(`🎯 PracticeScreen: Starting evaluation of ${answers.length} answers`);
       
       // Call backend to evaluate answers
-      const evaluationResult = await notesService.evaluateAnswers(note.id, answers);
+      const evaluationResult = await notesService.evaluateAnswers(note.id, session.questions, answers);
       console.log(`📊 PracticeScreen: Evaluation result received:`, evaluationResult);
       
       // Extract score and incorrect answers from backend response
-      const score = evaluationResult.score || 0;
-      const incorrectAnswers = (evaluationResult.incorrectAnswers || []).map((item: any) => ({
-        question: session.questions.find(q => q.id === item.questionId)!,
-        userAnswer: item.userAnswer,
-      }));
+      const score = evaluationResult.correctOnesCount || 0;
+      const incorrectAnswers = (evaluationResult.incorrectQuestions || []).map((item: any) => {
+        const questionData = item.json;
+        return {
+          question: session.questions.find(q => q.question === questionData.question)!,
+          userAnswer: questionData.studenAnswer,
+        };
+      });
 
-      console.log(`🏆 PracticeScreen: Final score: ${score}/${session.questions.length}`);
+      console.log(`🏆 PracticeScreen: Final score: ${score}/${session.questions.length} (${evaluationResult.finalScore}%)`);
       navigation.navigate('Results', {
         note,
         score,
