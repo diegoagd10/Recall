@@ -45,7 +45,7 @@ class NotesService {
   async fetchQuestions(noteId: string): Promise<Question[]> {
     console.log(`🌐 NotesService: Starting fetchQuestions API call for noteId: ${noteId}`);
     return this.makeAuthenticatedRequest(async (token) => {
-      const url = `${API_BASE_URL}/active-recall/questions/${noteId}`;
+      const url = `${API_BASE_URL}/active-recall/notes/${noteId}`;
       console.log(`🔗 NotesService: Making GET request to ${url}`);
       const response = await fetch(url, {
         method: 'GET',
