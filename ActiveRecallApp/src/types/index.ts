@@ -58,8 +58,9 @@ export type RootStackParamList = {
     score: number;
     totalQuestions: number;
     incorrectAnswers: Array<{
-      question: Question;
-      userAnswer: string;
+      question: string;
+      answer: string;
+      studenAnswer: string;
     }>;
   };
 };

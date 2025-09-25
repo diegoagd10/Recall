@@ -59,17 +59,13 @@ export default function ResultsScreen() {
             {incorrectAnswers.map((item, index) => (
               <View key={index} style={styles.incorrectItem}>
                 <Text style={styles.questionTitle}>Question:</Text>
-                <Text style={styles.questionText}>
-                  {item.question.question}
-                </Text>
+                <Text style={styles.questionText}>{item.question}</Text>
 
                 <Text style={styles.answerTitle}>Your Answer:</Text>
-                <Text style={styles.userAnswerText}>{item.userAnswer}</Text>
+                <Text style={styles.userAnswerText}>{item.studenAnswer}</Text>
 
                 <Text style={styles.answerTitle}>Correct Answer:</Text>
-                <Text style={styles.correctAnswerText}>
-                  {item.question.answer}
-                </Text>
+                <Text style={styles.correctAnswerText}>{item.answer}</Text>
               </View>
             ))}
           </View>

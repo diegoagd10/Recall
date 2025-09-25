@@ -212,8 +212,9 @@ export default function PracticeScreen() {
     // Clean up audio resources before proceeding
     await cleanupCurrentAudio();
 
+    const currentQ = session.questions[session.currentQuestionIndex];
     const newUserAnswer = {
-      questionId: session.questions[session.currentQuestionIndex].id,
+      questionId: currentQ?.id ?? String(session.currentQuestionIndex),
       userAnswer: currentAnswer.trim(),
     };
     console.log(
@@ -300,17 +301,7 @@ export default function PracticeScreen() {
 
       // Extract score and incorrect answers from backend response
       const score = evaluationResult.correctOnesCount || 0;
-      const incorrectAnswers = (evaluationResult.incorrectQuestions || []).map(
-        (item: any) => {
-          const questionData = item.json;
-          return {
-            question: session.questions.find(
-              (q) => q.question === questionData.question
-            )!,
-            userAnswer: questionData.studenAnswer,
-          };
-        }
-      );
+      const incorrectAnswers = evaluationResult.incorrectQuestions || [];
 
       console.log(
         `🏆 PracticeScreen: Final score: ${score}/${session.questions.length} (${evaluationResult.finalScore}%)`

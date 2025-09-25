@@ -62,20 +62,32 @@ class NotesService {
       }
 
       const data = await response.json();
-      console.log(`✅ NotesService: fetchQuestions successful, received ${data.length} questions`);
-      return data;
+      console.log(`✅ NotesService: fetchQuestions successful, received ${data.length} raw questions`);
+      const normalized = (Array.isArray(data) ? data : []).map((q: any, idx: number) => ({
+        // Force unique, stable IDs per question based on order; do not trust backend-provided ids that might be duplicated
+        id: String(idx),
+        question: q?.question ?? '',
+        answer: q?.answer ?? '',
+      }));
+      console.log('🧩 NotesService: Normalized questions (ids should be unique and sequential):',
+        normalized.map((q: any, i: number) => ({ i, id: q.id, preview: (q.question || '').slice(0, 60) })));
+      return normalized;
     });
   }
 
   async evaluateAnswers(noteId: string, questions: Question[], userAnswers: Array<{ questionId: string; userAnswer: string }>): Promise<any> {
     console.log(`🌐 NotesService: Starting evaluateAnswers API call for noteId: ${noteId}`);
     return this.makeAuthenticatedRequest(async (token) => {
+      // Snapshot for debugging mapping
+      console.log('🧪 NotesService: Questions snapshot for evaluation:', questions.map((q, i) => ({ i, id: q?.id, q: (q?.question || '').slice(0, 60) })));
+      console.log('🧪 NotesService: User answers snapshot:', userAnswers.map((ua, i) => ({ i, questionId: ua?.questionId, a: (ua?.userAnswer || '').slice(0, 60) })));
       // Transform to the correct format: array of {question, answer, studenAnswer} objects
-      const requestBody = userAnswers.map(userAnswer => {
-        const question = questions.find(q => q.id === userAnswer.questionId);
+      const requestBody = userAnswers.map((userAnswer, i) => {
+        const byId = questions.find(q => q.id && userAnswer.questionId && q.id === userAnswer.questionId);
+        const q = byId ?? questions[i];
         return {
-          question: question?.question || '',
-          answer: question?.answer || '',
+          question: q?.question || '',
+          answer: q?.answer || '',
           studenAnswer: userAnswer.userAnswer
         };
       });
