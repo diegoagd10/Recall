@@ -26,6 +26,8 @@ export default function PracticeScreen() {
   const { note } = route.params;
   const notesService = NotesService.getInstance();
 
+  console.log(`📱 PracticeScreen: Screen loaded for note "${note.name}" (ID: ${note.id})`);
+
   const [session, setSession] = useState<PracticeSession>({
     noteId: note.id,
     questions: [],
@@ -44,32 +46,43 @@ export default function PracticeScreen() {
   const playbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    console.log('🔧 PracticeScreen: Component mounted, setting up audio and fetching questions...');
     setupAudio();
     fetchQuestions();
     return () => {
+      console.log('🧹 PracticeScreen: Component unmounting, cleaning up audio...');
       cleanupAudio();
     };
   }, []);
 
   const setupAudio = async () => {
     try {
+      console.log(`🎤 PracticeScreen: Setting up audio on platform: ${Platform.OS}`);
+      
       // Check if audio recording is supported on this platform
       if (Platform.OS === 'web') {
+        console.log('⚠️ PracticeScreen: Audio recording not supported on web platform');
         setIsAudioSupported(false);
         return;
       }
 
+      console.log('🔐 PracticeScreen: Requesting audio permissions...');
       const { status } = await Audio.requestPermissionsAsync();
+      console.log(`🔐 PracticeScreen: Audio permission status: ${status}`);
       setHasAudioPermission(status === 'granted');
       
       if (status === 'granted') {
+        console.log('🎵 PracticeScreen: Setting up audio mode for recording...');
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
         });
+        console.log('✅ PracticeScreen: Audio setup completed successfully');
+      } else {
+        console.log('❌ PracticeScreen: Audio permission denied');
       }
     } catch (error) {
-      console.error('Error setting up audio:', error);
+      console.error('❌ PracticeScreen: Error setting up audio:', error);
       setIsAudioSupported(false);
     }
   };
@@ -99,37 +112,58 @@ export default function PracticeScreen() {
 
   const fetchQuestions = async () => {
     try {
+      console.log(`🔄 PracticeScreen: Fetching questions for note ID: ${note.id}`);
       setLoading(true);
       const questions = await notesService.fetchQuestions(note.id);
+      console.log(`✅ PracticeScreen: Successfully fetched ${questions.length} questions:`, questions);
       setSession(prev => ({ ...prev, questions }));
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      console.error('❌ PracticeScreen: Error fetching questions:', error);
       // For development/testing: Show mock questions when API fails
       const mockQuestions: Question[] = [
         {
           id: '1',
           question: `What are the key concepts from "${note.name}"?`,
-          expectedAnswer: 'Sample expected answer for testing purposes'
+          answer: 'Sample expected answer for testing purposes'
         },
         {
           id: '2', 
           question: `How would you explain the main ideas in "${note.name}" to someone else?`,
-          expectedAnswer: 'Another sample expected answer'
+          answer: 'Another sample expected answer'
         },
         {
           id: '3',
           question: `What practical applications can you derive from "${note.name}"?`,
-          expectedAnswer: 'Practical application example'
+          answer: 'Practical application example'
         }
       ];
       
+      console.log('⚠️ PracticeScreen: Showing fallback test questions alert');
       Alert.alert(
         'Using Test Questions',
         'Could not connect to backend API. Using sample questions for testing the practice flow.',
         [
-          { text: 'Continue with Test Questions', onPress: () => setSession(prev => ({ ...prev, questions: mockQuestions })) },
-          { text: 'Retry API', onPress: fetchQuestions },
-          { text: 'Cancel', onPress: () => navigation.goBack() }
+          { 
+            text: 'Continue with Test Questions', 
+            onPress: () => {
+              console.log('✅ PracticeScreen: User chose to continue with test questions');
+              setSession(prev => ({ ...prev, questions: mockQuestions }));
+            }
+          },
+          { 
+            text: 'Retry API', 
+            onPress: () => {
+              console.log('🔄 PracticeScreen: User chose to retry API');
+              fetchQuestions();
+            }
+          },
+          { 
+            text: 'Cancel', 
+            onPress: () => {
+              console.log('❌ PracticeScreen: User cancelled, going back');
+              navigation.goBack();
+            }
+          }
         ]
       );
     } finally {
@@ -138,7 +172,10 @@ export default function PracticeScreen() {
   };
 
   const handleSubmitAnswer = async () => {
+    console.log(`📝 PracticeScreen: User submitted answer: "${currentAnswer.trim()}"`);
+    
     if (!currentAnswer.trim()) {
+      console.log('❌ PracticeScreen: No answer provided');
       Alert.alert('Error', 'Please provide an answer before submitting');
       return;
     }
@@ -153,11 +190,13 @@ export default function PracticeScreen() {
       questionId: session.questions[session.currentQuestionIndex].id,
       userAnswer: currentAnswer.trim(),
     };
+    console.log(`💾 PracticeScreen: Saving answer for question ${session.currentQuestionIndex + 1}:`, newUserAnswer);
 
     const updatedAnswers = [...session.userAnswers, newUserAnswer];
     
     if (session.currentQuestionIndex < session.questions.length - 1) {
       // Move to next question
+      console.log(`➡️ PracticeScreen: Moving to question ${session.currentQuestionIndex + 2} of ${session.questions.length}`);
       setSession(prev => ({
         ...prev,
         userAnswers: updatedAnswers,
@@ -167,6 +206,7 @@ export default function PracticeScreen() {
       setRecordingUri('');
     } else {
       // All questions completed, navigate to results
+      console.log(`🏁 PracticeScreen: All questions completed, navigating to results`);
       finishPracticeSession(updatedAnswers);
     }
   };
@@ -220,18 +260,25 @@ export default function PracticeScreen() {
   };
 
   const startRecording = async () => {
+    console.log('🎤 PracticeScreen: User tapped start recording');
+    
     if (!isAudioSupported) {
+      console.log('❌ PracticeScreen: Audio not supported, showing alert');
       Alert.alert('Audio Not Supported', 'Audio recording is not available on this platform. Please type your answer instead.');
       return;
     }
 
     if (!hasAudioPermission) {
+      console.log('❌ PracticeScreen: No audio permission, showing settings alert');
       Alert.alert(
         'Permission Required', 
         'Microphone permission is required for voice recording. Please enable it in settings.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: () => Linking.openSettings() }
+          { text: 'Open Settings', onPress: () => {
+            console.log('⚙️ PracticeScreen: User chose to open settings');
+            Linking.openSettings();
+          }}
         ]
       );
       return;
@@ -239,41 +286,48 @@ export default function PracticeScreen() {
 
     try {
       if (recordingRef.current) {
-        console.warn('Recording already in progress');
+        console.warn('⚠️ PracticeScreen: Recording already in progress');
         return;
       }
 
+      console.log('🎵 PracticeScreen: Creating new recording...');
       const { recording: newRecording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
       
       recordingRef.current = newRecording;
       setIsRecording(true);
+      console.log('✅ PracticeScreen: Recording started successfully');
     } catch (error) {
-      console.error('Error starting recording:', error);
+      console.error('❌ PracticeScreen: Error starting recording:', error);
       Alert.alert('Error', 'Failed to start recording. Please check microphone permissions.');
     }
   };
 
   const stopRecording = async () => {
+    console.log('🛑 PracticeScreen: User tapped stop recording');
     try {
       if (!recordingRef.current) {
-        console.warn('No recording to stop');
+        console.warn('⚠️ PracticeScreen: No recording to stop');
         return;
       }
 
+      console.log('⏹️ PracticeScreen: Stopping recording...');
       setIsRecording(false);
       await recordingRef.current.stopAndUnloadAsync();
       const uri = recordingRef.current.getURI();
+      console.log(`📁 PracticeScreen: Recording saved to URI: ${uri}`);
       
       if (uri) {
         setRecordingUri(uri);
+        console.log('🔄 PracticeScreen: Starting transcription...');
         await transcribeRecording(uri);
       }
       
       recordingRef.current = null;
+      console.log('✅ PracticeScreen: Recording stopped successfully');
     } catch (error) {
-      console.error('Error stopping recording:', error);
+      console.error('❌ PracticeScreen: Error stopping recording:', error);
       Alert.alert('Error', 'Failed to stop recording');
       setIsRecording(false);
       recordingRef.current = null;
@@ -292,16 +346,19 @@ export default function PracticeScreen() {
 
   const transcribeRecording = async (uri: string) => {
     try {
+      console.log(`🎙️ PracticeScreen: Starting transcription for audio file: ${uri}`);
       setTranscribing(true);
       const { fileExtension, mimeType } = getAudioFileInfo();
+      console.log(`📄 PracticeScreen: Using audio format - extension: ${fileExtension}, mimeType: ${mimeType}`);
       
       const transcribedText = await notesService.transcribeAudio(uri, {
         fileExtension,
         mimeType,
       });
+      console.log(`✅ PracticeScreen: Transcription successful: "${transcribedText}"`);
       setCurrentAnswer(transcribedText.trim());
     } catch (error) {
-      console.error('Error transcribing audio:', error);
+      console.error('❌ PracticeScreen: Error transcribing audio:', error);
       Alert.alert(
         'Transcription Failed',
         'Could not transcribe audio. You can type your answer instead.',

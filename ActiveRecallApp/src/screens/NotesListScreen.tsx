@@ -29,17 +29,20 @@ export default function NotesListScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
+      console.log('📱 NotesListScreen: Screen focused, fetching notes...');
       fetchNotes();
     }, [])
   );
 
   const fetchNotes = async () => {
     try {
+      console.log('🔄 NotesListScreen: Starting to fetch notes from API...');
       setLoading(true);
       const fetchedNotes = await notesService.fetchNotes();
+      console.log(`✅ NotesListScreen: Successfully fetched ${fetchedNotes.length} notes`, fetchedNotes);
       setNotes(fetchedNotes);
     } catch (error) {
-      console.error('Error fetching notes:', error);
+      console.error('❌ NotesListScreen: Error fetching notes:', error);
       Alert.alert(
         'Error',
         'Failed to load notes. Please check your internet connection and try again.',
@@ -51,12 +54,14 @@ export default function NotesListScreen() {
   };
 
   const onRefresh = async () => {
+    console.log('🔄 NotesListScreen: User triggered refresh');
     setRefreshing(true);
     try {
       const fetchedNotes = await notesService.fetchNotes();
+      console.log(`✅ NotesListScreen: Refresh successful, ${fetchedNotes.length} notes loaded`);
       setNotes(fetchedNotes);
     } catch (error) {
-      console.error('Error refreshing notes:', error);
+      console.error('❌ NotesListScreen: Error refreshing notes:', error);
       Alert.alert('Error', 'Failed to refresh notes');
     } finally {
       setRefreshing(false);
@@ -64,18 +69,22 @@ export default function NotesListScreen() {
   };
 
   const handleNotePress = (note: Note) => {
+    console.log(`👆 NotesListScreen: User tapped on note "${note.name}" (ID: ${note.id})`);
     setSelectedNote(note);
     setShowPracticeModal(true);
   };
 
   const handleStartPractice = () => {
+    console.log(`🚀 NotesListScreen: User confirmed to start practice for note "${selectedNote?.name}" (ID: ${selectedNote?.id})`);
     setShowPracticeModal(false);
     if (selectedNote) {
+      console.log(`🧭 NotesListScreen: Navigating to Practice screen with note:`, selectedNote);
       navigation.navigate('Practice', { note: selectedNote });
     }
   };
 
   const handleCancelPractice = () => {
+    console.log(`❌ NotesListScreen: User cancelled practice for note "${selectedNote?.name}"`);
     setShowPracticeModal(false);
     setSelectedNote(null);
   };

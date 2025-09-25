@@ -19,7 +19,9 @@ class NotesService {
   }
 
   async fetchNotes(): Promise<Note[]> {
+    console.log('🌐 NotesService: Starting fetchNotes API call');
     return this.makeAuthenticatedRequest(async (token) => {
+      console.log(`🔗 NotesService: Making GET request to ${API_BASE_URL}/active-recall/notes`);
       const response = await fetch(`${API_BASE_URL}/active-recall/notes`, {
         method: 'GET',
         headers: {
@@ -28,17 +30,24 @@ class NotesService {
         },
       });
 
+      console.log(`📊 NotesService: fetchNotes response status: ${response.status}`);
       if (!response.ok) {
+        console.error(`❌ NotesService: fetchNotes failed with status ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log(`✅ NotesService: fetchNotes successful, received ${data.length} notes`);
+      return data;
     });
   }
 
   async fetchQuestions(noteId: string): Promise<Question[]> {
+    console.log(`🌐 NotesService: Starting fetchQuestions API call for noteId: ${noteId}`);
     return this.makeAuthenticatedRequest(async (token) => {
-      const response = await fetch(`${API_BASE_URL}/active-recall/questions/${noteId}`, {
+      const url = `${API_BASE_URL}/active-recall/questions/${noteId}`;
+      console.log(`🔗 NotesService: Making GET request to ${url}`);
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -46,15 +55,20 @@ class NotesService {
         },
       });
 
+      console.log(`📊 NotesService: fetchQuestions response status: ${response.status}`);
       if (!response.ok) {
+        console.error(`❌ NotesService: fetchQuestions failed with status ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log(`✅ NotesService: fetchQuestions successful, received ${data.length} questions`);
+      return data;
     });
   }
 
   async transcribeAudio(uri: string, audioInfo?: { fileExtension: string; mimeType: string }): Promise<string> {
+    console.log(`🌐 NotesService: Starting transcribeAudio API call for file: ${uri}`);
     return this.makeAuthenticatedRequest(async (token) => {
       const formData = new FormData();
       
@@ -63,6 +77,8 @@ class NotesService {
       const mimeType = audioInfo?.mimeType || 'audio/wav';
       const fileName = `recording.${fileExtension}`;
       
+      console.log(`📁 NotesService: Preparing audio file - name: ${fileName}, type: ${mimeType}`);
+      
       formData.append('file', {
         uri,
         type: mimeType,
@@ -70,7 +86,9 @@ class NotesService {
       } as any);
       formData.append('model_id', 'scribe_v1');
 
-      const response = await fetch(`${API_BASE_URL}/active-recall/transcribe`, {
+      const url = `${API_BASE_URL}/active-recall/transcribe`;
+      console.log(`🔗 NotesService: Making POST request to ${url}`);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -78,11 +96,15 @@ class NotesService {
         body: formData,
       });
 
+      console.log(`📊 NotesService: transcribeAudio response status: ${response.status}`);
       if (!response.ok) {
+        console.error(`❌ NotesService: transcribeAudio failed with status ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.text();
+      const transcription = await response.text();
+      console.log(`✅ NotesService: transcribeAudio successful, transcription: "${transcription}"`);
+      return transcription;
     });
   }
 
