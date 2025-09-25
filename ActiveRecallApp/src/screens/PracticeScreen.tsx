@@ -104,11 +104,31 @@ export default function PracticeScreen() {
       setSession(prev => ({ ...prev, questions }));
     } catch (error) {
       console.error('Error fetching questions:', error);
+      // For development/testing: Show mock questions when API fails
+      const mockQuestions: Question[] = [
+        {
+          id: '1',
+          question: `What are the key concepts from "${note.name}"?`,
+          expectedAnswer: 'Sample expected answer for testing purposes'
+        },
+        {
+          id: '2', 
+          question: `How would you explain the main ideas in "${note.name}" to someone else?`,
+          expectedAnswer: 'Another sample expected answer'
+        },
+        {
+          id: '3',
+          question: `What practical applications can you derive from "${note.name}"?`,
+          expectedAnswer: 'Practical application example'
+        }
+      ];
+      
       Alert.alert(
-        'Error',
-        'Failed to load questions. Please check your connection and try again.',
+        'Using Test Questions',
+        'Could not connect to backend API. Using sample questions for testing the practice flow.',
         [
-          { text: 'Retry', onPress: fetchQuestions },
+          { text: 'Continue with Test Questions', onPress: () => setSession(prev => ({ ...prev, questions: mockQuestions })) },
+          { text: 'Retry API', onPress: fetchQuestions },
           { text: 'Cancel', onPress: () => navigation.goBack() }
         ]
       );
