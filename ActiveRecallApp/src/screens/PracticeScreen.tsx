@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Platform,
   Linking,
+  Modal,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -41,6 +42,7 @@ export default function PracticeScreen() {
   const [hasAudioPermission, setHasAudioPermission] = useState(false);
   const [isAudioSupported, setIsAudioSupported] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
+  const [isEvaluating, setIsEvaluating] = useState(false);
   const recordingRef = useRef<Audio.Recording | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const playbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -246,6 +248,7 @@ export default function PracticeScreen() {
   const finishPracticeSession = async (answers: typeof session.userAnswers) => {
     try {
       console.log(`🎯 PracticeScreen: Starting evaluation of ${answers.length} answers`);
+      setIsEvaluating(true);
       
       // Call backend to evaluate answers
       const evaluationResult = await notesService.evaluateAnswers(note.id, session.questions, answers);
@@ -262,6 +265,7 @@ export default function PracticeScreen() {
       });
 
       console.log(`🏆 PracticeScreen: Final score: ${score}/${session.questions.length} (${evaluationResult.finalScore}%)`);
+      setIsEvaluating(false);
       navigation.navigate('Results', {
         note,
         score,
@@ -270,6 +274,7 @@ export default function PracticeScreen() {
       });
     } catch (error) {
       console.error('❌ PracticeScreen: Error evaluating answers:', error);
+      setIsEvaluating(false);
       Alert.alert(
         'Evaluation Error',
         'Could not evaluate your answers. Please try again.',
@@ -583,6 +588,21 @@ export default function PracticeScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Evaluation Loading Modal */}
+      <Modal
+        visible={isEvaluating}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.evaluationOverlay}>
+          <View style={styles.evaluationModal}>
+            <ActivityIndicator size="large" color="#007AFF" />
+            <Text style={styles.evaluationText}>Evaluating your answers...</Text>
+            <Text style={styles.evaluationSubtext}>Please wait while we score your responses</Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -761,5 +781,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
     marginVertical: 12,
+  },
+  evaluationOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  evaluationModal: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 32,
+    alignItems: 'center',
+    minWidth: 280,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  evaluationText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  evaluationSubtext: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
