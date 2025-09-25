@@ -243,20 +243,36 @@ export default function PracticeScreen() {
     }
   };
 
-  const finishPracticeSession = (answers: typeof session.userAnswers) => {
-    // TODO: Evaluate answers and calculate score
-    const score = Math.floor(Math.random() * answers.length) + 1; // Mock score
-    const incorrectAnswers = answers.slice(0, Math.max(0, answers.length - score)).map(answer => ({
-      question: session.questions.find(q => q.id === answer.questionId)!,
-      userAnswer: answer.userAnswer,
-    }));
+  const finishPracticeSession = async (answers: typeof session.userAnswers) => {
+    try {
+      console.log(`🎯 PracticeScreen: Starting evaluation of ${answers.length} answers`);
+      
+      // Call backend to evaluate answers
+      const evaluationResult = await notesService.evaluateAnswers(note.id, answers);
+      console.log(`📊 PracticeScreen: Evaluation result received:`, evaluationResult);
+      
+      // Extract score and incorrect answers from backend response
+      const score = evaluationResult.score || 0;
+      const incorrectAnswers = (evaluationResult.incorrectAnswers || []).map((item: any) => ({
+        question: session.questions.find(q => q.id === item.questionId)!,
+        userAnswer: item.userAnswer,
+      }));
 
-    navigation.navigate('Results', {
-      note,
-      score,
-      totalQuestions: session.questions.length,
-      incorrectAnswers,
-    });
+      console.log(`🏆 PracticeScreen: Final score: ${score}/${session.questions.length}`);
+      navigation.navigate('Results', {
+        note,
+        score,
+        totalQuestions: session.questions.length,
+        incorrectAnswers,
+      });
+    } catch (error) {
+      console.error('❌ PracticeScreen: Error evaluating answers:', error);
+      Alert.alert(
+        'Evaluation Error',
+        'Could not evaluate your answers. Please try again.',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    }
   };
 
   const startRecording = async () => {

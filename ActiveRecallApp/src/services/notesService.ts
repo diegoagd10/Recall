@@ -67,6 +67,34 @@ class NotesService {
     });
   }
 
+  async evaluateAnswers(noteId: string, userAnswers: Array<{ questionId: string; userAnswer: string }>): Promise<any> {
+    console.log(`🌐 NotesService: Starting evaluateAnswers API call for noteId: ${noteId}`);
+    return this.makeAuthenticatedRequest(async (token) => {
+      const url = `https://n8n.srv913906.hstgr.cloud/webhook/6ee000e1-5ed7-4242-bada-7706ddfdd2ff/api/active-recall/notes/${noteId}`;
+      console.log(`🔗 NotesService: Making POST request to ${url} with ${userAnswers.length} answers`);
+      console.log(`📝 NotesService: User answers being sent:`, userAnswers);
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answers: userAnswers }),
+      });
+
+      console.log(`📊 NotesService: evaluateAnswers response status: ${response.status}`);
+      if (!response.ok) {
+        console.error(`❌ NotesService: evaluateAnswers failed with status ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ NotesService: evaluateAnswers successful:`, data);
+      return data;
+    });
+  }
+
   async transcribeAudio(uri: string, audioInfo?: { fileExtension: string; mimeType: string }): Promise<string> {
     console.log(`🌐 NotesService: Starting transcribeAudio API call for file: ${uri}`);
     return this.makeAuthenticatedRequest(async (token) => {
