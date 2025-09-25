@@ -92,7 +92,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   scrollContainer: {
+    flexGrow: 1,
     padding: 16,
+    minHeight: '100%',
   },
   header: {
     alignItems: 'center',
@@ -115,7 +117,10 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     marginBottom: 24,
-    boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
     elevation: 5,
   },
   scoreText: {
@@ -172,7 +177,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
-    boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
     elevation: 5,
   },
   questionTitle: {
