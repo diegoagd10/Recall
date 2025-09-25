@@ -1,4 +1,6 @@
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { AuthResponse } from '../types';
 
 const API_BASE_URL = 'https://n8n.srv913906.hstgr.cloud/webhook/api';
@@ -17,10 +19,48 @@ class AuthService {
     return AuthService.instance;
   }
 
+  async authenticate(username: string, password: string): Promise<boolean> {
+    try {
+      console.log('🔐 AuthService: Authenticating user with backend...');
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+      console.log(`📊 AuthService: Authentication response status: ${response.status}`);
+      
+      if (response.ok) {
+        const data: AuthResponse = await response.json();
+        
+        this.accessToken = data.accessToken;
+        this.tokenExpiry = Date.now() + (parseInt(data.expiresIn) * 1000);
+
+        // Store token in AsyncStorage
+        await AsyncStorage.setItem('accessToken', data.accessToken);
+        await AsyncStorage.setItem('tokenExpiry', this.tokenExpiry.toString());
+
+        console.log('✅ AuthService: Authentication successful, token stored');
+        return true;
+      } else {
+        console.log('❌ AuthService: Authentication failed');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ AuthService: Authentication error:', error);
+      return false;
+    }
+  }
+
   async getValidToken(): Promise<string | null> {
     console.log('🔍 AuthService: Checking for valid token...');
     
-    // Check if we have a valid token
+    // Check if we have a valid token in memory
     if (this.accessToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
       console.log('✅ AuthService: Using existing valid token');
       return this.accessToken;
@@ -38,49 +78,65 @@ class AuthService {
       return this.accessToken;
     }
 
-    console.log('🔄 AuthService: No valid stored token, refreshing...');
-    // Get new token
-    return await this.refreshToken();
+    console.log('🔄 AuthService: No valid stored token, checking for stored credentials...');
+    // Try to refresh token using stored credentials
+    return await this.refreshTokenWithStoredCredentials();
   }
 
-  private async refreshToken(): Promise<string | null> {
+  private async refreshTokenWithStoredCredentials(): Promise<string | null> {
     try {
-      console.log('🔐 AuthService: Refreshing token...');
-      console.log(`🔗 AuthService: Making POST request to ${API_BASE_URL}/tokens`);
-      const response = await fetch(`${API_BASE_URL}/tokens`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          client_name: 'xdeQwgwTSGTxR3fN',
-          client_secret: 'pjPEToKJ988iOaHn',
-          audience: 'https://recal.test.com/isam',
-        }),
-      });
+      const username = await SecureStore.getItemAsync('username');
+      const password = await SecureStore.getItemAsync('password');
 
-      console.log(`📊 AuthService: Token refresh response status: ${response.status}`);
-      if (!response.ok) {
-        console.error(`❌ AuthService: Token refresh failed with status ${response.status}`);
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!username || !password) {
+        console.log('❌ AuthService: No stored credentials found');
+        return null;
       }
 
-      const data: AuthResponse = await response.json();
+      console.log('🔄 AuthService: Refreshing token with stored credentials...');
+      const success = await this.authenticate(username, password);
       
-      this.accessToken = data.accessToken;
-      this.tokenExpiry = Date.now() + (parseInt(data.expiresIn) * 1000);
-
-      console.log(`💾 AuthService: Storing token in AsyncStorage, expires: ${new Date(this.tokenExpiry)}`);
-      // Store in AsyncStorage
-      await AsyncStorage.setItem('accessToken', data.accessToken);
-      await AsyncStorage.setItem('tokenExpiry', this.tokenExpiry.toString());
-
-      console.log('✅ AuthService: Token refresh successful');
-      return this.accessToken;
+      if (success) {
+        return this.accessToken;
+      } else {
+        console.log('❌ AuthService: Failed to refresh token with stored credentials');
+        await this.logout();
+        return null;
+      }
     } catch (error) {
-      console.error('❌ AuthService: Error refreshing token:', error);
+      console.error('❌ AuthService: Error refreshing token with stored credentials:', error);
       return null;
     }
+  }
+
+  async isLoggedIn(): Promise<boolean> {
+    try {
+      const isLoggedIn = await SecureStore.getItemAsync('isLoggedIn');
+      const token = await this.getValidToken();
+      return isLoggedIn === 'true' && token !== null;
+    } catch (error) {
+      console.error('❌ AuthService: Error checking login status:', error);
+      return false;
+    }
+  }
+
+  async logout(): Promise<void> {
+    console.log('🚪 AuthService: Logging out user...');
+    
+    // Clear memory
+    this.accessToken = null;
+    this.tokenExpiry = null;
+
+    // Clear AsyncStorage
+    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('tokenExpiry');
+
+    // Clear SecureStore
+    await SecureStore.deleteItemAsync('username');
+    await SecureStore.deleteItemAsync('password');
+    await SecureStore.deleteItemAsync('isLoggedIn');
+
+    console.log('✅ AuthService: Logout completed, all credentials cleared');
   }
 
   async clearToken(): Promise<void> {

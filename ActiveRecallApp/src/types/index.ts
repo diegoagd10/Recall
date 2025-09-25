@@ -50,6 +50,7 @@ export interface AuthResponse {
 }
 
 export type RootStackParamList = {
+  Login: undefined;
   NotesList: undefined;
   Practice: { note: Note };
   Results: {

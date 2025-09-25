@@ -15,6 +15,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, Note } from '../types';
 import NotesService from '../services/notesService';
+import AuthService from '../services/authService';
 
 type NotesListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NotesList'>;
 
@@ -26,6 +27,7 @@ export default function NotesListScreen() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [showPracticeModal, setShowPracticeModal] = useState(false);
   const notesService = NotesService.getInstance();
+  const authService = AuthService.getInstance();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -89,6 +91,28 @@ export default function NotesListScreen() {
     setSelectedNote(null);
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: async () => {
+            console.log('🚪 NotesListScreen: User confirmed logout');
+            await authService.logout();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          }
+        }
+      ]
+    );
+  };
+
   const renderNoteItem = ({ item }: { item: Note }) => (
     <TouchableOpacity style={styles.noteItem} onPress={() => handleNotePress(item)}>
       <View style={styles.noteHeader}>
@@ -143,7 +167,12 @@ export default function NotesListScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Active Recall Notes</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Active Recall Notes</Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={notes}
         renderItem={renderNoteItem}
@@ -199,12 +228,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 20,
     color: '#333',
+  },
+  logoutButton: {
+    backgroundColor: '#FF3B30',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   loadingText: {
     marginTop: 10,
