@@ -343,13 +343,14 @@ export default function PracticeScreen() {
       console.log(`📁 PracticeScreen: Recording saved to URI: ${uri}`);
       
       if (uri) {
-        setRecordingUri(uri);
-        console.log('🔄 PracticeScreen: Starting transcription...');
+        console.log('🔄 PracticeScreen: Starting auto-transcription...');
         await transcribeRecording(uri);
+        // Clear recording URI after successful transcription
+        setRecordingUri('');
       }
       
       recordingRef.current = null;
-      console.log('✅ PracticeScreen: Recording stopped successfully');
+      console.log('✅ PracticeScreen: Recording stopped and transcribed successfully');
     } catch (error) {
       console.error('❌ PracticeScreen: Error stopping recording:', error);
       Alert.alert('Error', 'Failed to stop recording');
@@ -393,97 +394,6 @@ export default function PracticeScreen() {
     }
   };
 
-  const playRecording = async () => {
-    if (!recordingUri) {
-      Alert.alert('Error', 'No recording to play');
-      return;
-    }
-
-    let newSound: Audio.Sound | null = null;
-    
-    try {
-      // Clear any existing timeout
-      if (playbackTimeoutRef.current) {
-        clearTimeout(playbackTimeoutRef.current);
-        playbackTimeoutRef.current = null;
-      }
-      
-      if (soundRef.current) {
-        soundRef.current.setOnPlaybackStatusUpdate(null);
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: recordingUri },
-        { shouldPlay: false }
-      );
-      newSound = sound;
-      soundRef.current = newSound;
-      
-      // Set up timeout protection (1 minute max)
-      const timeout = setTimeout(() => {
-        if (soundRef.current) {
-          soundRef.current.setOnPlaybackStatusUpdate(null);
-          soundRef.current.unloadAsync().catch(console.error);
-          soundRef.current = null;
-        }
-        playbackTimeoutRef.current = null;
-      }, 60000);
-      playbackTimeoutRef.current = timeout;
-      
-      // Set up playback status listener to clean up when finished
-      newSound.setOnPlaybackStatusUpdate((status: any) => {
-        if (status.didJustFinish) {
-          if (playbackTimeoutRef.current) {
-            clearTimeout(playbackTimeoutRef.current);
-            playbackTimeoutRef.current = null;
-          }
-          if (soundRef.current) {
-            soundRef.current.setOnPlaybackStatusUpdate(null);
-            soundRef.current.unloadAsync().catch(console.error);
-            soundRef.current = null;
-          }
-        }
-      });
-      
-      await newSound.playAsync();
-    } catch (error) {
-      console.error('Error playing recording:', error);
-      Alert.alert('Error', 'Failed to play recording. The audio file may be corrupted.');
-      
-      // Clean up on error
-      if (playbackTimeoutRef.current) {
-        clearTimeout(playbackTimeoutRef.current);
-        playbackTimeoutRef.current = null;
-      }
-      if (newSound) {
-        newSound.setOnPlaybackStatusUpdate(null);
-        newSound.unloadAsync().catch(console.error);
-        soundRef.current = null;
-      }
-    }
-  };
-
-  const deleteRecording = async () => {
-    try {
-      // Clear any active timeout
-      if (playbackTimeoutRef.current) {
-        clearTimeout(playbackTimeoutRef.current);
-        playbackTimeoutRef.current = null;
-      }
-      
-      if (soundRef.current) {
-        soundRef.current.setOnPlaybackStatusUpdate(null);
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-      setRecordingUri('');
-      setCurrentAnswer('');
-    } catch (error) {
-      console.error('Error deleting recording:', error);
-    }
-  };
 
   const currentQuestion = session.questions[session.currentQuestionIndex];
 
@@ -564,16 +474,6 @@ export default function PracticeScreen() {
             </TouchableOpacity>
           )}
 
-          {recordingUri && (
-            <View style={styles.audioActions}>
-              <TouchableOpacity style={styles.playButton} onPress={playRecording}>
-                <Text style={styles.playButtonText}>Play</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteButton} onPress={deleteRecording}>
-                <Text style={styles.deleteButtonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
       </View>
 
@@ -682,32 +582,6 @@ const styles = StyleSheet.create({
   recordButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
-  },
-  audioActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  playButton: {
-    backgroundColor: '#34C759',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-  },
-  playButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  deleteButton: {
-    backgroundColor: '#FF3B30',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontSize: 14,
     fontWeight: '600',
   },
   bottomControls: {

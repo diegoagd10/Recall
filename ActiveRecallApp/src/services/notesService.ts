@@ -140,8 +140,12 @@ class NotesService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const transcription = await response.text();
-      console.log(`✅ NotesService: transcribeAudio successful, transcription: "${transcription}"`);
+      const data = await response.json();
+      console.log(`✅ NotesService: transcribeAudio successful, raw response:`, data);
+      
+      // Extract text from the new API format: [{"text": "transcribed_text", "usage": {}}]
+      const transcription = Array.isArray(data) && data[0]?.text ? data[0].text : '';
+      console.log(`✅ NotesService: Extracted transcription: "${transcription}"`);
       return transcription;
     });
   }
