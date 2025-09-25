@@ -45,7 +45,7 @@ class NotesService {
   async fetchQuestions(noteId: string): Promise<Question[]> {
     console.log(`🌐 NotesService: Starting fetchQuestions API call for noteId: ${noteId}`);
     return this.makeAuthenticatedRequest(async (token) => {
-      const url = `${API_BASE_URL}/active-recall/notes/${noteId}`;
+      const url = `https://n8n.srv913906.hstgr.cloud/webhook/6ee000e1-5ed7-4242-bada-7706ddfdd2ff/api/active-recall/notes/${noteId}`;
       console.log(`🔗 NotesService: Making GET request to ${url}`);
       const response = await fetch(url, {
         method: 'GET',
