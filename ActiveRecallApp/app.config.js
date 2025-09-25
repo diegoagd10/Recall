@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 export default {
   expo: {
     name: 'ActiveRecallApp',
@@ -27,8 +29,8 @@ export default {
       favicon: './assets/favicon.png'
     },
     extra: {
-      BACKEND_API_CLIENT_ID: process.env.BACKEND_API_CLIENT_ID,
-      BACKEND_API_CLIENT_SECRET: process.env.BACKEND_API_CLIENT_SECRET
+      BACKEND_API_CLIENT_ID: 'xdeQwgwTSGTxR3fN',
+      BACKEND_API_CLIENT_SECRET: 'pjPEToKJ988iOaHn'
     }
   }
 };
