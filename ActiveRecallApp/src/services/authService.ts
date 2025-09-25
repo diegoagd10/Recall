@@ -4,6 +4,17 @@ import { AuthResponse } from '../types';
 
 const API_BASE_URL = 'https://n8n.srv913906.hstgr.cloud/webhook/api';
 
+const getConfig = () => {
+  const config = Constants.expoConfig;
+  if (!config || !config.extra) {
+    throw new Error('Expo config extra not found');
+  }
+  const clientName = config.extra.clientName || '';
+  const clientSecret = config.extra.clientSecret || '';
+  
+  return { clientName, clientSecret };
+};
+
 class AuthService {
   private static instance: AuthService;
   private accessToken: string | null = null;
@@ -48,14 +59,17 @@ class AuthService {
     try {
       console.log('🔐 AuthService: Refreshing token...');
       console.log(`🔗 AuthService: Making POST request to ${API_BASE_URL}/tokens`);
+      
+      const { clientName, clientSecret } = getConfig();
+      
       const response = await fetch(`${API_BASE_URL}/tokens`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          client_name: Constants.expoConfig?.extra?.BACKEND_API_CLIENT_ID,
-          client_secret: Constants.expoConfig?.extra?.BACKEND_API_CLIENT_SECRET,
+          client_name: clientName,
+          client_secret: clientSecret,
           audience: 'https://recal.test.com/isam',
         }),
       });

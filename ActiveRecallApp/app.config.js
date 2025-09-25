@@ -29,8 +29,8 @@ export default {
       favicon: './assets/favicon.png'
     },
     extra: {
-      BACKEND_API_CLIENT_ID: 'xdeQwgwTSGTxR3fN',
-      BACKEND_API_CLIENT_SECRET: 'pjPEToKJ988iOaHn'
+      clientName: process.env.EXPO_PUBLIC_CLIENT_NAME,
+      clientSecret: process.env.EXPO_PUBLIC_CLIENT_SECRET
     }
   }
 };
