@@ -22,14 +22,15 @@ class AuthService {
   async authenticate(username: string, password: string): Promise<boolean> {
     try {
       console.log('🔐 AuthService: Authenticating user with backend...');
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/tokens`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username,
-          password,
+          client_name: username,
+          client_secret: password,
+          audience: "https://recal.test.com/isam"
         }),
       });
 
