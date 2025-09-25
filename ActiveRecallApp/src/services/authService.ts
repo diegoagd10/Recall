@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { AuthResponse } from '../types';
 
 const API_BASE_URL = 'https://n8n.srv913906.hstgr.cloud/webhook/api';
@@ -53,8 +54,8 @@ class AuthService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          client_name: process.env.BACKEND_API_CLIENT_ID,
-          client_secret: process.env.BACKEND_API_CLIENT_SECRET,
+          client_name: Constants.expoConfig?.extra?.BACKEND_API_CLIENT_ID,
+          client_secret: Constants.expoConfig?.extra?.BACKEND_API_CLIENT_SECRET,
           audience: 'https://recal.test.com/isam',
         }),
       });

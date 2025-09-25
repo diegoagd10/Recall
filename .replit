@@ -18,21 +18,17 @@ args = "Expo Dev Server"
 name = "Expo Dev Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd ActiveRecallApp && npx expo start --web --port 5000"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ActiveRecallApp && BACKEND_API_CLIENT_ID=$BACKEND_API_CLIENT_ID BACKEND_API_CLIENT_SECRET=$BACKEND_API_CLIENT_SECRET npx expo start --web --port=5000"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 34823
-externalPort = 3000
 
 [[ports]]
 localPort = 41791
